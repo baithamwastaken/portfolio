@@ -154,8 +154,13 @@ function GalleryPage() {
       <nav className="flex justify-between items-center px-8 py-6 w-full fixed top-0 left-0 z-50 select-none">
         <Link
           to="/"
-          className="font-bold text-lg tracking-widest text-white opacity-90 hover:opacity-100 transition-opacity duration-200"
-          style={{ textDecoration: 'none', mixBlendMode: 'difference', position: 'relative' }}
+          className="font-normal text-lg tracking-widest text-white opacity-90 hover:opacity-100 transition-opacity duration-200 font-sans"
+          style={{
+            textDecoration: 'none',
+            mixBlendMode: 'difference',
+            position: 'relative',
+            fontFamily: `'Open Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif`,
+          }}
         >
           {navLeft}
         </Link>
@@ -213,6 +218,112 @@ function GalleryPage() {
   );
 }
 
+// Restore AnimatedHi component for the About page
+function AnimatedHi() {
+  const [hovered, setHovered] = React.useState(false);
+  const [expanded, setExpanded] = React.useState(false);
+  const [revealCount, setRevealCount] = React.useState(0);
+  const leftFull = 'Haitham';
+  const rightFull = 'Iswed';
+  const total = leftFull.length + rightFull.length;
+
+  // Reveal left and right letters one by one
+  const left = leftFull.slice(0, Math.min(revealCount, leftFull.length));
+  const right = revealCount > leftFull.length ? rightFull.slice(0, revealCount - leftFull.length) : '';
+
+  // Progress for HI expansion (0 to 1)
+  const hiProgress = hovered ? 1 : 0;
+  // Progress for full name expansion (0 to 1)
+  const progress = expanded ? revealCount / total : 0;
+  // Max translation for HI (closer together), and for full name
+  const hiMaxTranslate = 60; // px, much closer for HI
+  const nameMaxTranslate = 900; // px, full expansion for name
+
+  React.useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    if (expanded && revealCount < total) {
+      timeout = setTimeout(() => setRevealCount(revealCount + 1), 80);
+    }
+    if (!expanded && revealCount > 0) {
+      setRevealCount(0);
+    }
+    return () => clearTimeout(timeout);
+  }, [expanded, revealCount, total]);
+
+  // On mouse leave, reset everything
+  const handleMouseLeave = () => {
+    setHovered(false);
+    setExpanded(false);
+    setRevealCount(0);
+  };
+
+  return (
+    <div
+      className="flex items-center justify-center w-full h-full select-none"
+      style={{ minHeight: '30vh', pointerEvents: 'auto', position: 'relative' }}
+    >
+      {/* H (moves left on hover, hides when revealed) */}
+      <span
+        className="absolute left-1/2 top-1/2 text-7xl md:text-9xl font-semibold text-white font-sans cursor-pointer"
+        style={{
+          transform: `translate(-50%, -50%) translateX(${-hiProgress * hiMaxTranslate * 0.5 - progress * nameMaxTranslate * 0.5}px)`,
+          transition: 'transform 1s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s',
+          whiteSpace: 'nowrap',
+          zIndex: 2,
+          pointerEvents: 'auto',
+          opacity: revealCount >= 1 ? 0 : 1,
+          fontFamily: `'Open Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif`,
+        }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={handleMouseLeave}
+        onClick={() => hovered && setExpanded(true)}
+      >
+        H
+      </span>
+      {/* I (moves right on hover, hides when revealed) */}
+      <span
+        className="absolute left-1/2 top-1/2 text-7xl md:text-9xl font-semibold text-white font-sans cursor-pointer"
+        style={{
+          transform: `translate(-50%, -50%) translateX(${hiProgress * hiMaxTranslate * 0.5 + progress * nameMaxTranslate * 0.5}px)`,
+          transition: 'transform 1s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s',
+          whiteSpace: 'nowrap',
+          zIndex: 2,
+          pointerEvents: 'auto',
+          opacity: revealCount >= leftFull.length + 1 ? 0 : 1,
+          fontFamily: `'Open Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif`,
+        }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={handleMouseLeave}
+        onClick={() => hovered && setExpanded(true)}
+      >
+        I
+      </span>
+      {/* Center revealed letters, expanding outward */}
+      <span
+        className="absolute left-1/2 top-1/2 text-7xl md:text-9xl text-white text-center font-sans cursor-pointer"
+        style={{
+          transform: 'translate(-50%, -50%)',
+          letterSpacing: '0.05em',
+          zIndex: 1,
+          pointerEvents: 'auto',
+          minWidth: '1ch',
+          opacity: expanded ? 1 : 0,
+          transition: 'opacity 0.3s',
+          fontFamily: `'Open Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif`,
+        }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={handleMouseLeave}
+        onClick={() => hovered && setExpanded(true)}
+      >
+        {left}
+        {left && right ? '\u00A0\u00A0' : ''}
+        <span style={{ fontWeight: 400 }}>{right}</span>
+      </span>
+    </div>
+  );
+}
+
+// Restore AboutPage React component
 function AboutPage() {
   const [bgPos, setBgPos] = React.useState('center');
 
@@ -241,7 +352,7 @@ function AboutPage() {
       <nav className="flex justify-between items-center px-8 py-6 w-full fixed top-0 left-0 z-10 select-none">
         <Link
           to="/"
-          className="font-bold text-lg tracking-widest text-white opacity-90 hover:opacity-100 transition-opacity duration-200"
+          className="font-normal text-lg tracking-widest text-white opacity-90 hover:opacity-100 transition-opacity duration-200 font-sans"
           style={{ textDecoration: 'none', mixBlendMode: 'difference' }}
         >
           {navLeft}
@@ -266,11 +377,14 @@ function AboutPage() {
         </div>
       </nav>
       <div className="h-20" />
-      {/* No main content, just the background image */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <AnimatedHi />
+      </div>
     </div>
   );
 }
 
+// Restore AboutPage route
 export default function App() {
   return (
     <Router>
