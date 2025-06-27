@@ -11,12 +11,14 @@ const navRight = [
 // List of images and videos in the public/images folder
 const imageFiles = [
   'audi.png',
+  'back.mov',
   'batman.jpg',
   'chair.jpg',
   'city1.20001-0250.mov',
   'cloud-lab.jpg',
   'discord provile.png',
   'flower.png',
+  'glass.mov',
   'grass.png',
   'hotwheels.mp4',
   'loopy.mp4',
