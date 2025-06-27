@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Masonry from 'react-masonry-css';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 
 const navLeft = 'haitham';
 const navRight = [
@@ -106,7 +107,7 @@ const MediaItem = ({ src, idx }: { src: string; idx: number }) => {
   );
 };
 
-function App() {
+function GalleryPage() {
   const [images, setImages] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const perPage = 6;
@@ -150,10 +151,22 @@ function App() {
   return (
     <div className="min-h-screen bg-black dark:bg-black text-white">
       {/* Transparent Nav Bar */}
-      <nav className="flex justify-between items-center px-8 py-6 w-full fixed top-0 left-0 z-10 select-none">
-        <div className="font-bold text-lg tracking-widest opacity-90">{navLeft}</div>
+      <nav className="flex justify-between items-center px-8 py-6 w-full fixed top-0 left-0 z-50 select-none">
+        <Link
+          to="/"
+          className="font-bold text-lg tracking-widest text-white opacity-90 hover:opacity-100 transition-opacity duration-200"
+          style={{ textDecoration: 'none', mixBlendMode: 'difference', position: 'relative' }}
+        >
+          {navLeft}
+        </Link>
         <div className="flex gap-8">
-          {navRight.map((item) => (
+          <Link
+            to="/about"
+            className="font-medium text-base opacity-80 hover:opacity-100 transition-opacity duration-200"
+          >
+            About
+          </Link>
+          {navRight.filter(item => item.label !== 'About').map((item) => (
             <a
               key={item.label}
               href={item.href}
@@ -200,4 +213,71 @@ function App() {
   );
 }
 
-export default App;
+function AboutPage() {
+  const [bgPos, setBgPos] = React.useState('center');
+
+  // Parallax mouse move handler (even more subtle)
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    const { innerWidth, innerHeight } = window;
+    const x = e.clientX / innerWidth;
+    const y = e.clientY / innerHeight;
+    // Parallax range: -4px to +4px from center (even less)
+    const offsetX = (x - 0.5) * 8;
+    const offsetY = (y - 0.5) * 8;
+    setBgPos(`${50 + offsetX}% ${50 + offsetY}%`);
+  };
+
+  return (
+    <div
+      className="min-h-screen bg-black dark:bg-black text-white flex flex-col items-center justify-center relative"
+      style={{
+        backgroundImage: 'url(/assets/face.jpeg)',
+        backgroundSize: '110%', // Less zoom
+        backgroundPosition: bgPos,
+        backgroundRepeat: 'no-repeat',
+      }}
+      onMouseMove={handleMouseMove}
+    >
+      <nav className="flex justify-between items-center px-8 py-6 w-full fixed top-0 left-0 z-10 select-none">
+        <Link
+          to="/"
+          className="font-bold text-lg tracking-widest text-white opacity-90 hover:opacity-100 transition-opacity duration-200"
+          style={{ textDecoration: 'none', mixBlendMode: 'difference' }}
+        >
+          {navLeft}
+        </Link>
+        <div className="flex gap-8">
+          <Link
+            to="/about"
+            className="font-medium text-base opacity-80 hover:opacity-100 transition-opacity duration-200"
+          >
+            About
+          </Link>
+          {navRight.filter(item => item.label !== 'About').map((item) => (
+            <a
+              key={item.label}
+              href={item.href}
+              className="font-medium text-base opacity-80 hover:opacity-100 transition-opacity duration-200"
+              {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+            >
+              {item.label}
+            </a>
+          ))}
+        </div>
+      </nav>
+      <div className="h-20" />
+      {/* No main content, just the background image */}
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<GalleryPage />} />
+        <Route path="/about" element={<AboutPage />} />
+      </Routes>
+    </Router>
+  );
+}
