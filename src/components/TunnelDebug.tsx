@@ -2,144 +2,117 @@ import React, { useState, useEffect } from 'react';
 import { getCloudflareImageUrl, isCloudflareConfigured } from '../utils/cloudflareImages';
 import { getCloudflareImageId, shouldUseCloudflare } from '../utils/cloudflareImageMapping';
 
-export const TunnelDebug: React.FC = () => {
-  const [testResults, setTestResults] = useState<{[key: string]: any}>({});
-  const [isTesting, setIsTesting] = useState(false);
+const TunnelDebug: React.FC = () => {
+  const [debugInfo, setDebugInfo] = useState<any>({});
+  const [testResults, setTestResults] = useState<any>({});
 
-  const testImages = [
-    'audi.png',
-    'flower.png', 
-    'untitled.png',
-    'batman.jpg'
-  ];
-
-  const testImage = (filename: string) => {
-    return new Promise<any>((resolve) => {
-      const results: any = {
-        filename,
-        localUrl: `/images/${filename}`,
-        cloudflareUrl: null,
-        localTest: null,
-        cloudflareTest: null,
-        error: null
-      };
-
-      // Test local image first
-      const localImg = new Image();
-      localImg.onload = () => {
-        results.localTest = 'success';
-        resolve(results);
-      };
-      localImg.onerror = () => {
-        results.localTest = 'failed';
-        resolve(results);
-      };
-      localImg.src = results.localUrl;
-
-      // Test Cloudflare image
-      if (isCloudflareConfigured() && shouldUseCloudflare(filename)) {
-        try {
-          const cloudflareId = getCloudflareImageId(filename);
-          const cloudflareUrl = getCloudflareImageUrl(cloudflareId, 'gallery');
-          results.cloudflareUrl = cloudflareUrl;
-
-          const cfImg = new Image();
-          cfImg.onload = () => {
-            results.cloudflareTest = 'success';
-            resolve(results);
-          };
-          cfImg.onerror = () => {
-            results.cloudflareTest = 'failed';
-            resolve(results);
-          };
-          cfImg.src = cloudflareUrl;
-        } catch (error) {
-          results.error = error;
-          resolve(results);
-        }
-      } else {
-        results.cloudflareTest = 'not-configured';
-        resolve(results);
+  useEffect(() => {
+    // Collect debug information
+    const info = {
+      userAgent: navigator.userAgent,
+      location: window.location.href,
+      protocol: window.location.protocol,
+      hostname: window.location.hostname,
+      port: window.location.port,
+      isLocalhost: window.location.hostname === 'localhost',
+      isTunnel: window.location.hostname.includes('ngrok') || window.location.hostname.includes('tunnel'),
+      cloudflareConfigured: isCloudflareConfigured(),
+      envVars: {
+        accountHash: process.env.REACT_APP_CLOUDFLARE_ACCOUNT_HASH || 'Not set',
+        domain: process.env.REACT_APP_CLOUDFLARE_IMAGES_DOMAIN || 'Not set',
+        accountId: process.env.REACT_APP_CLOUDFLARE_ACCOUNT_ID || 'Not set',
       }
+    };
+    setDebugInfo(info);
+
+    // Test image loading
+    testImageLoading();
+  }, []);
+
+  const testImageLoading = async () => {
+    const testImages = [
+      { name: 'batman.jpg', local: '/images/batman.jpg', cloudflare: null as string | null },
+      { name: 'spiderman.jpg', local: '/images/spiderman.jpg', cloudflare: null as string | null },
+    ];
+
+    const results: any = {};
+
+    for (const img of testImages) {
+      if (shouldUseCloudflare(img.name)) {
+        try {
+          const cloudflareId = getCloudflareImageId(img.name);
+          img.cloudflare = getCloudflareImageUrl(cloudflareId, 'gallery');
+        } catch (error) {
+          console.error(`Failed to get Cloudflare URL for ${img.name}:`, error);
+        }
+      }
+
+      results[img.name] = {
+        local: await testImageLoad(img.local),
+        cloudflare: img.cloudflare ? await testImageLoad(img.cloudflare) : null,
+        cloudflareUrl: img.cloudflare
+      };
+    }
+
+    setTestResults(results);
+  };
+
+  const testImageLoad = (url: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(false);
+      img.src = url;
+      
+      // Timeout after 5 seconds
+      setTimeout(() => resolve(false), 5000);
     });
   };
 
-  const runTests = async () => {
-    setIsTesting(true);
-    const results: {[key: string]: any} = {};
-    
-    for (const filename of testImages) {
-      results[filename] = await testImage(filename);
-    }
-    
-    setTestResults(results);
-    setIsTesting(false);
-  };
-
   return (
-    <div className="p-4 bg-gray-900 border border-gray-700 rounded-lg mb-4">
-      <h3 className="text-white font-bold mb-4">Tunnel Debug</h3>
+    <div className="fixed top-4 right-4 bg-black bg-opacity-90 text-white p-4 rounded-lg max-w-md z-50 text-xs">
+      <h3 className="font-bold mb-2">Tunnel Debug Info</h3>
       
       <div className="mb-4">
-        <button 
-          onClick={runTests}
-          disabled={isTesting}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-        >
-          {isTesting ? 'Testing...' : 'Test Image Loading'}
-        </button>
+        <strong>Environment:</strong>
+        <div>Hostname: {debugInfo.hostname}</div>
+        <div>Protocol: {debugInfo.protocol}</div>
+        <div>Port: {debugInfo.port}</div>
+        <div>Is Localhost: {debugInfo.isLocalhost ? 'Yes' : 'No'}</div>
+        <div>Is Tunnel: {debugInfo.isTunnel ? 'Yes' : 'No'}</div>
       </div>
-      
-      <div className="space-y-4">
-        {Object.entries(testResults).map(([filename, result]) => (
-          <div key={filename} className="p-3 bg-gray-800 rounded">
-            <h4 className="text-white font-semibold mb-2">{filename}</h4>
-            
-            <div className="space-y-2 text-sm">
-              <div>
-                <strong>Local URL:</strong> {result.localUrl}
+
+      <div className="mb-4">
+        <strong>Cloudflare Config:</strong>
+        <div>Configured: {debugInfo.cloudflareConfigured ? 'Yes' : 'No'}</div>
+        <div>Account Hash: {debugInfo.envVars?.accountHash}</div>
+        <div>Domain: {debugInfo.envVars?.domain}</div>
+      </div>
+
+      <div className="mb-4">
+        <strong>Image Test Results:</strong>
+        {Object.entries(testResults).map(([name, result]: [string, any]) => (
+          <div key={name} className="mt-2">
+            <div className="font-semibold">{name}:</div>
+            <div>Local: {result.local ? '✅' : '❌'}</div>
+            <div>Cloudflare: {result.cloudflare ? '✅' : '❌'}</div>
+            {result.cloudflareUrl && (
+              <div className="text-xs text-gray-300 break-all">
+                URL: {result.cloudflareUrl}
               </div>
-              
-              <div>
-                <strong>Local Test:</strong> 
-                <span className={`ml-2 ${result.localTest === 'success' ? 'text-green-400' : 'text-red-400'}`}>
-                  {result.localTest === 'success' ? '✅ Success' : '❌ Failed'}
-                </span>
-              </div>
-              
-              {result.cloudflareUrl && (
-                <div>
-                  <strong>Cloudflare URL:</strong> 
-                  <div className="text-xs text-gray-400 break-all">{result.cloudflareUrl}</div>
-                </div>
-              )}
-              
-              <div>
-                <strong>Cloudflare Test:</strong> 
-                <span className={`ml-2 ${
-                  result.cloudflareTest === 'success' ? 'text-green-400' : 
-                  result.cloudflareTest === 'failed' ? 'text-red-400' : 
-                  'text-yellow-400'
-                }`}>
-                  {result.cloudflareTest === 'success' ? '✅ Success' : 
-                   result.cloudflareTest === 'failed' ? '❌ Failed' : 
-                   result.cloudflareTest === 'not-configured' ? '⚠️ Not Configured' : '⏳ Testing'}
-                </span>
-              </div>
-              
-              {result.error && (
-                <div className="text-red-400">
-                  <strong>Error:</strong> {result.error.toString()}
-                </div>
-              )}
-            </div>
+            )}
           </div>
         ))}
       </div>
-      
-      <div className="mt-4 text-sm text-gray-400">
-        <p>This will help identify if the issue is with local images, Cloudflare, or network connectivity.</p>
-      </div>
+
+      <button 
+        onClick={testImageLoading}
+        className="bg-blue-600 px-2 py-1 rounded text-xs"
+      >
+        Retest Images
+      </button>
     </div>
   );
-}; 
+};
+
+export default TunnelDebug; 

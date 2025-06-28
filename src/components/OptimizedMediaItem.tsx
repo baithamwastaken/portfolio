@@ -19,7 +19,6 @@ export const OptimizedMediaItem: React.FC<OptimizedMediaItemProps> = ({
   const [currentSrc, setCurrentSrc] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [useCloudflare, setUseCloudflare] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
 
   const isVideo = src.toLowerCase().endsWith('.mp4') || src.toLowerCase().endsWith('.mov');
   
@@ -81,7 +80,6 @@ export const OptimizedMediaItem: React.FC<OptimizedMediaItemProps> = ({
       console.log('Cloudflare image failed, trying local image');
       setCurrentSrc(src);
       setUseCloudflare(false);
-      setRetryCount(prev => prev + 1);
     } else {
       // If local also failed, show error indicator
       e.currentTarget.style.border = '2px solid red';
