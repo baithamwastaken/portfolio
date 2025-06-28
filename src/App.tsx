@@ -380,9 +380,6 @@ function AboutPage() {
       }}
       onMouseMove={handleMouseMove}
     >
-      {/* Debug component for face image */}
-      <FaceImageTest />
-      
       <nav className="flex justify-between items-center px-8 py-6 w-full fixed top-0 left-0 z-10 select-none">
         <Link
           to="/"
