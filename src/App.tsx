@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import Masonry from 'react-masonry-css';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
@@ -154,7 +154,7 @@ function GalleryPage() {
       <nav className="flex justify-between items-center px-8 py-6 w-full fixed top-0 left-0 z-50 select-none">
         <Link
           to="/"
-          className="font-normal text-lg tracking-widest text-white opacity-90 hover:opacity-100 transition-opacity duration-200 font-sans"
+          className="font-normal text-xl tracking-widest text-white opacity-90 hover:opacity-100 transition-opacity duration-200 font-sans"
           style={{
             textDecoration: 'none',
             mixBlendMode: 'difference',
@@ -164,10 +164,20 @@ function GalleryPage() {
         >
           {navLeft}
         </Link>
+        
+        {/* Centered Logo */}
+        <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
+          <img 
+            src="/wlogo.png" 
+            alt="Logo" 
+            className="h-8 w-auto opacity-90 hover:opacity-100 transition-opacity duration-200"
+          />
+        </div>
+        
         <div className="flex gap-8">
           <Link
             to="/about"
-            className="font-medium text-base opacity-80 hover:opacity-100 transition-opacity duration-200"
+            className="font-medium text-lg opacity-80 hover:opacity-100 transition-opacity duration-200"
           >
             About
           </Link>
@@ -175,7 +185,7 @@ function GalleryPage() {
             <a
               key={item.label}
               href={item.href}
-              className="font-medium text-base opacity-80 hover:opacity-100 transition-opacity duration-200"
+              className="font-medium text-lg opacity-80 hover:opacity-100 transition-opacity duration-200"
               {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
             >
               {item.label}
@@ -223,9 +233,11 @@ function AnimatedHi() {
   const [hovered, setHovered] = React.useState(false);
   const [expanded, setExpanded] = React.useState(false);
   const [revealCount, setRevealCount] = React.useState(0);
+  const [encryptedText, setEncryptedText] = React.useState("");
   const leftFull = 'Haitham';
   const rightFull = 'Iswed';
   const total = leftFull.length + rightFull.length;
+  const chars = "-_~`!@#$%^&*()+=[]{}|;:,.<>?";
 
   // Reveal left and right letters one by one
   const left = leftFull.slice(0, Math.min(revealCount, leftFull.length));
@@ -239,22 +251,49 @@ function AnimatedHi() {
   const hiMaxTranslate = 60; // px, much closer for HI
   const nameMaxTranslate = 900; // px, full expansion for name
 
+  // Encryption effect for the revealed text
   React.useEffect(() => {
-    let timeout: NodeJS.Timeout;
     if (expanded && revealCount < total) {
-      timeout = setTimeout(() => setRevealCount(revealCount + 1), 80);
+      const timer = setTimeout(() => {
+        setRevealCount(revealCount + 1);
+      }, 80);
+      return () => clearTimeout(timer);
     }
     if (!expanded && revealCount > 0) {
       setRevealCount(0);
     }
-    return () => clearTimeout(timeout);
   }, [expanded, revealCount, total]);
 
-  // On mouse leave, reset everything
+  // Generate encrypted text for the remaining characters
+  React.useEffect(() => {
+    if (expanded) {
+      const remainingLength = total - revealCount;
+      const encrypted = Array.from({ length: remainingLength }, () => 
+        chars[Math.floor(Math.random() * chars.length)]
+      ).join('');
+      setEncryptedText(encrypted);
+    } else {
+      setEncryptedText("");
+    }
+  }, [expanded, revealCount, total, chars]);
+
+  // Handle click - toggle expanded state
+  const handleClick = () => {
+    if (hovered && !expanded) {
+      // First click: expand
+      setExpanded(true);
+    } else if (expanded) {
+      // Second click: collapse
+      setExpanded(false);
+      setHovered(false);
+    }
+  };
+
+  // On mouse leave, only reset hover (not expanded state)
   const handleMouseLeave = () => {
-    setHovered(false);
-    setExpanded(false);
-    setRevealCount(0);
+    if (!expanded) {
+      setHovered(false);
+    }
   };
 
   return (
@@ -276,7 +315,7 @@ function AnimatedHi() {
         }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={handleMouseLeave}
-        onClick={() => hovered && setExpanded(true)}
+        onClick={handleClick}
       >
         H
       </span>
@@ -294,11 +333,11 @@ function AnimatedHi() {
         }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={handleMouseLeave}
-        onClick={() => hovered && setExpanded(true)}
+        onClick={handleClick}
       >
         I
       </span>
-      {/* Center revealed letters, expanding outward */}
+      {/* Center revealed letters with encryption effect */}
       <span
         className="absolute left-1/2 top-1/2 text-7xl md:text-9xl text-white text-center font-sans cursor-pointer"
         style={{
@@ -313,11 +352,12 @@ function AnimatedHi() {
         }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={handleMouseLeave}
-        onClick={() => hovered && setExpanded(true)}
+        onClick={handleClick}
       >
         {left}
         {left && right ? '\u00A0\u00A0' : ''}
         <span style={{ fontWeight: 400 }}>{right}</span>
+        {encryptedText}
       </span>
     </div>
   );
@@ -352,15 +392,25 @@ function AboutPage() {
       <nav className="flex justify-between items-center px-8 py-6 w-full fixed top-0 left-0 z-10 select-none">
         <Link
           to="/"
-          className="font-normal text-lg tracking-widest text-white opacity-90 hover:opacity-100 transition-opacity duration-200 font-sans"
+          className="font-normal text-xl tracking-widest text-white opacity-90 hover:opacity-100 transition-opacity duration-200 font-sans"
           style={{ textDecoration: 'none', mixBlendMode: 'difference' }}
         >
           {navLeft}
         </Link>
+        
+        {/* Centered Logo */}
+        <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
+          <img 
+            src="/wlogo.png" 
+            alt="Logo" 
+            className="h-8 w-auto opacity-90 hover:opacity-100 transition-opacity duration-200"
+          />
+        </div>
+        
         <div className="flex gap-8">
           <Link
             to="/about"
-            className="font-medium text-base opacity-80 hover:opacity-100 transition-opacity duration-200"
+            className="font-medium text-lg opacity-80 hover:opacity-100 transition-opacity duration-200"
           >
             About
           </Link>
@@ -368,7 +418,7 @@ function AboutPage() {
             <a
               key={item.label}
               href={item.href}
-              className="font-medium text-base opacity-80 hover:opacity-100 transition-opacity duration-200"
+              className="font-medium text-lg opacity-80 hover:opacity-100 transition-opacity duration-200"
               {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
             >
               {item.label}
