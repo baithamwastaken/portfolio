@@ -2,16 +2,16 @@
 const CLOUDFLARE_IMAGES_DOMAIN = process.env.REACT_APP_CLOUDFLARE_IMAGES_DOMAIN || 'imagedelivery.net';
 const CLOUDFLARE_ACCOUNT_HASH = process.env.REACT_APP_CLOUDFLARE_ACCOUNT_HASH || '_91C5nLBdJJSmgo9yUewLA';
 
-// Image variants for different use cases - using common variant names
+// Image variants using flexible variants with transformation parameters
 export const IMAGE_VARIANTS = {
-  // Basic variants that are commonly available
-  public: 'public', // Default public variant
-  thumbnail: 'thumbnail', // Thumbnail variant
-  gallery: 'gallery', // Gallery variant
-  full: 'full', // Full size variant
-  background: 'background', // Background variant
+  // Flexible variants with transformation parameters
+  public: 'public', // Use the existing public variant
+  thumbnail: 'w=300,h=300,fit=cover,f=webp', // Small thumbnails
+  gallery: 'w=800,h=600,fit=cover,f=webp', // Gallery images
+  full: 'w=1200,h=800,fit=cover,f=webp', // Full size images
+  background: 'w=1920,h=1080,fit=cover,f=webp', // Background images
   
-  // Fallback variants with parameters
+  // Additional flexible variants
   webp: 'w=800,h=600,fit=cover,f=webp',
   avif: 'w=800,h=600,fit=cover,f=avif',
   jpeg: 'w=800,h=600,fit=cover,f=jpeg',
