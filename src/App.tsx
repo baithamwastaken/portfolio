@@ -5,7 +5,6 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { OptimizedMediaItem } from './components/OptimizedMediaItem';
 import { getCloudflareImageUrl, isCloudflareConfigured } from './utils/cloudflareImages';
 import { getCloudflareImageId } from './utils/cloudflareImageMapping';
-import FaceImageTest from './components/FaceImageTest';
 
 const navLeft = 'haitham';
 const navRight = [
