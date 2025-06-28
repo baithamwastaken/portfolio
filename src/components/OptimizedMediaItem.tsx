@@ -35,9 +35,21 @@ export const OptimizedMediaItem: React.FC<OptimizedMediaItemProps> = ({
     const imageId = getImageId(src);
     
     if (isCloudflareConfigured()) {
-      // Use Cloudflare Images with WebP-optimized variants
-      const responsiveUrls = getResponsiveImageUrls(imageId, ['gallery_avif', 'gallery', 'gallery_jpeg']);
-      setCurrentSrc(responsiveUrls.gallery);
+      try {
+        // Use Cloudflare Images with WebP-optimized variants
+        const responsiveUrls = getResponsiveImageUrls(imageId, ['gallery_avif', 'gallery', 'gallery_jpeg']);
+        const cloudflareUrl = responsiveUrls.gallery;
+        
+        // Only use Cloudflare URL if it's valid and not the fallback path
+        if (cloudflareUrl && cloudflareUrl !== `/images/${imageId}`) {
+          setCurrentSrc(cloudflareUrl);
+        } else {
+          setCurrentSrc(src);
+        }
+      } catch (error) {
+        console.warn('Failed to generate Cloudflare URL, using fallback:', error);
+        setCurrentSrc(src);
+      }
     } else {
       // Fallback to original path
       setCurrentSrc(src);
@@ -85,10 +97,19 @@ export const OptimizedMediaItem: React.FC<OptimizedMediaItemProps> = ({
   const imageId = getImageId(src);
   const responsiveUrls = isCloudflareConfigured() ? getResponsiveImageUrls(imageId, ['gallery_avif', 'gallery', 'gallery_jpeg']) : null;
 
+  // Only use responsive URLs if they are valid and not fallback paths
+  const validResponsiveUrls = responsiveUrls && 
+    responsiveUrls.gallery_avif && 
+    responsiveUrls.gallery && 
+    responsiveUrls.gallery_jpeg &&
+    responsiveUrls.gallery_avif !== `/images/${imageId}` &&
+    responsiveUrls.gallery !== `/images/${imageId}` &&
+    responsiveUrls.gallery_jpeg !== `/images/${imageId}`;
+
   return (
     <picture>
       {/* Modern formats for browsers that support them - AVIF first, then WebP */}
-      {responsiveUrls && (
+      {validResponsiveUrls && (
         <>
           <source srcSet={responsiveUrls.gallery_avif} type="image/avif" />
           <source srcSet={responsiveUrls.gallery} type="image/webp" />

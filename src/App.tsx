@@ -4,6 +4,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { OptimizedMediaItem } from './components/OptimizedMediaItem';
 import { getCloudflareImageUrl, isCloudflareConfigured } from './utils/cloudflareImages';
+import { ImageOptimizationTest } from './components/ImageOptimizationTest';
 
 const navLeft = 'haitham';
 const navRight = [
@@ -345,19 +346,32 @@ function AboutPage() {
     setBgPos(`${50 + offsetX}% ${50 + offsetY}%`);
   };
 
-  // Get optimized background image URL
+  // Get optimized background image URL with proper fallback
   const getBackgroundImageUrl = () => {
+    const fallbackUrl = '/assets/face.jpeg';
+    
     if (isCloudflareConfigured()) {
-      return getCloudflareImageUrl('face.jpeg', 'background');
+      try {
+        const cloudflareUrl = getCloudflareImageUrl('face.jpeg', 'background');
+        // Only use Cloudflare URL if it's valid (not empty)
+        if (cloudflareUrl && cloudflareUrl !== `/images/face.jpeg`) {
+          return cloudflareUrl;
+        }
+      } catch (error) {
+        console.warn('Failed to generate Cloudflare URL, using fallback:', error);
+      }
     }
-    return '/assets/face.jpeg';
+    
+    return fallbackUrl;
   };
+
+  const backgroundUrl = getBackgroundImageUrl();
 
   return (
     <div
       className="min-h-screen bg-black dark:bg-black text-white flex flex-col items-center justify-center relative"
       style={{
-        backgroundImage: `url(${getBackgroundImageUrl()})`,
+        backgroundImage: backgroundUrl ? `url(${backgroundUrl})` : undefined,
         backgroundSize: '110%', // Less zoom
         backgroundPosition: bgPos,
         backgroundRepeat: 'no-repeat',
@@ -395,6 +409,11 @@ function AboutPage() {
       <div className="h-20" />
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <AnimatedHi />
+      </div>
+      
+      {/* Temporary debug component - remove after testing */}
+      <div className="absolute bottom-4 left-4 z-20">
+        <ImageOptimizationTest imageId="face.jpeg" />
       </div>
     </div>
   );

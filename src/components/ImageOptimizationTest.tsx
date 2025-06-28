@@ -22,10 +22,15 @@ export const ImageOptimizationTest: React.FC<ImageOptimizationTestProps> = ({ im
       
       <div className="space-y-2 text-sm">
         <div>
+          <strong>Account ID:</strong> {process.env.REACT_APP_CLOUDFLARE_ACCOUNT_ID}
+        </div>
+        
+        <div>
           <strong>Small (300x300 WebP):</strong>
           <a href={sizes.small} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-2">
             View
           </a>
+          <div className="text-xs text-gray-600 mt-1">{sizes.small}</div>
         </div>
         
         <div>
@@ -33,6 +38,7 @@ export const ImageOptimizationTest: React.FC<ImageOptimizationTestProps> = ({ im
           <a href={sizes.medium} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-2">
             View
           </a>
+          <div className="text-xs text-gray-600 mt-1">{sizes.medium}</div>
         </div>
         
         <div>
@@ -40,6 +46,7 @@ export const ImageOptimizationTest: React.FC<ImageOptimizationTestProps> = ({ im
           <a href={sizes.large} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-2">
             View
           </a>
+          <div className="text-xs text-gray-600 mt-1">{sizes.large}</div>
         </div>
         
         <div>
@@ -47,6 +54,7 @@ export const ImageOptimizationTest: React.FC<ImageOptimizationTestProps> = ({ im
           <a href={sizes.background} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-2">
             View
           </a>
+          <div className="text-xs text-gray-600 mt-1">{sizes.background}</div>
         </div>
       </div>
       
