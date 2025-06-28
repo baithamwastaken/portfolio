@@ -40,6 +40,9 @@ export const OptimizedMediaItem: React.FC<OptimizedMediaItemProps> = ({
         const responsiveUrls = getResponsiveImageUrls(imageId, ['gallery_avif', 'gallery', 'gallery_jpeg']);
         const cloudflareUrl = responsiveUrls.gallery;
         
+        // Debug: Show the Cloudflare URL being used
+        console.log(`Gallery Image: ${imageId} → ${cloudflareUrl}`);
+        
         // Only use Cloudflare URL if it's valid and not the fallback path
         if (cloudflareUrl && cloudflareUrl !== `/images/${imageId}`) {
           setCurrentSrc(cloudflareUrl);
