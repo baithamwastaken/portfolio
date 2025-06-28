@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getCloudflareImageUrl, getResponsiveImageUrls, isCloudflareConfigured, ImageVariant } from '../utils/cloudflareImages';
+import { getResponsiveImageUrls, isCloudflareConfigured, ImageVariant } from '../utils/cloudflareImages';
 
 interface OptimizedMediaItemProps {
   src: string;
@@ -16,7 +16,6 @@ export const OptimizedMediaItem: React.FC<OptimizedMediaItemProps> = ({
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [currentSrc, setCurrentSrc] = useState<string>('');
-  const [error, setError] = useState(false);
 
   const isVideo = src.toLowerCase().endsWith('.mp4') || src.toLowerCase().endsWith('.mov');
   
@@ -49,7 +48,6 @@ export const OptimizedMediaItem: React.FC<OptimizedMediaItemProps> = ({
   };
 
   const handleImageError = () => {
-    setError(true);
     // Fallback to original image if Cloudflare fails
     if (isCloudflareConfigured() && currentSrc !== src) {
       setCurrentSrc(src);
