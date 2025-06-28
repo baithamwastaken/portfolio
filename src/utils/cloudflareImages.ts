@@ -1,6 +1,14 @@
 // Cloudflare Images configuration
-const CLOUDFLARE_ACCOUNT_ID = process.env.REACT_APP_CLOUDFLARE_ACCOUNT_ID || '';
+const CLOUDFLARE_ACCOUNT_ID = process.env.REACT_APP_CLOUDFLARE_ACCOUNT_ID || 'ab486e3586d401ea089ce76298c70e92';
 const CLOUDFLARE_IMAGES_DOMAIN = process.env.REACT_APP_CLOUDFLARE_IMAGES_DOMAIN || 'imagedelivery.net';
+
+// Debug logging
+console.log('Cloudflare Images Debug:', {
+  accountId: CLOUDFLARE_ACCOUNT_ID,
+  domain: CLOUDFLARE_IMAGES_DOMAIN,
+  envVar: process.env.REACT_APP_CLOUDFLARE_ACCOUNT_ID,
+  allEnv: Object.keys(process.env).filter(key => key.includes('CLOUDFLARE'))
+});
 
 // Image variants for different use cases - optimized for WebP and responsive sizing
 export const IMAGE_VARIANTS = {
