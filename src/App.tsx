@@ -3,8 +3,6 @@ import Masonry from 'react-masonry-css';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { OptimizedMediaItem } from './components/OptimizedMediaItem';
-import { ImageDebug } from './components/ImageDebug';
-import { CloudflareImageTester } from './components/CloudflareImageTester';
 import { getCloudflareImageUrl, isCloudflareConfigured } from './utils/cloudflareImages';
 
 const navLeft = 'haitham';
@@ -78,11 +76,6 @@ const breakpointColumnsObj = {
   1100: 3,
   700: 2,
   500: 1,
-};
-
-// Component to render either image or video
-const MediaItem = ({ src, idx }: { src: string; idx: number }) => {
-  return <OptimizedMediaItem src={src} idx={idx} />;
 };
 
 function GalleryPage() {
@@ -165,13 +158,6 @@ function GalleryPage() {
       {/* Spacer for nav */}
       <div className="h-20" />
       
-      {/* Debug Section - Temporary */}
-      <div className="px-4 pt-8">
-        <CloudflareImageTester imageName="batman.jpg" />
-        <CloudflareImageTester imageName="audi.png" />
-        <CloudflareImageTester imageName="chair.jpg" />
-      </div>
-      
       {/* Masonry Infinite Gallery */}
       <main className="w-full px-4 pt-8">
         <InfiniteScroll
@@ -195,7 +181,7 @@ function GalleryPage() {
                 onMouseLeave={handleMouseLeave}
                 style={{ transformStyle: 'preserve-3d' }}
               >
-                <MediaItem src={src} idx={idx} />
+                <OptimizedMediaItem src={src} idx={idx} />
               </div>
             ))}
           </Masonry>

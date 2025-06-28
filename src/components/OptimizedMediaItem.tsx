@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getCloudflareImageUrl, isCloudflareConfigured, ImageVariant } from '../utils/cloudflareImages';
+import { getCloudflareImageId, shouldUseCloudflare } from '../utils/cloudflareImageMapping';
 
 interface OptimizedMediaItemProps {
   src: string;
@@ -35,25 +36,28 @@ export const OptimizedMediaItem: React.FC<OptimizedMediaItemProps> = ({
 
     const imageId = getImageId(src);
     
-    if (isCloudflareConfigured()) {
+    if (isCloudflareConfigured() && shouldUseCloudflare(imageId)) {
       try {
+        // Get the Cloudflare Image ID
+        const cloudflareId = getCloudflareImageId(imageId);
+        
         // Generate Cloudflare URL
-        const cloudflareUrl = getCloudflareImageUrl(imageId, variant);
+        const cloudflareUrl = getCloudflareImageUrl(cloudflareId, variant);
         
         // Debug: Show the Cloudflare URL being used
-        console.log(`Gallery Image: ${imageId} → ${cloudflareUrl}`);
+        console.log(`Gallery Image: ${imageId} → ${cloudflareId} → ${cloudflareUrl}`);
         
         // Test if Cloudflare URL works
         const testImage = new Image();
         testImage.onload = () => {
-          console.log('Cloudflare Images working, using Cloudflare URL');
+          console.log('✅ Cloudflare Images working, using Cloudflare URL');
           setUseCloudflare(true);
           setCurrentSrc(cloudflareUrl);
           setIsLoading(false);
         };
         
         testImage.onerror = () => {
-          console.log('Cloudflare Images not working, using local image');
+          console.log('❌ Cloudflare Images not working, using local image');
           setUseCloudflare(false);
           setCurrentSrc(src);
           setIsLoading(false);
@@ -75,21 +79,26 @@ export const OptimizedMediaItem: React.FC<OptimizedMediaItemProps> = ({
   }, [src, isVideo, variant]);
 
   const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    console.log(`${useCloudflare ? 'Cloudflare' : 'Local'} image loaded successfully:`, src);
     setImageLoaded(true);
     e.currentTarget.style.opacity = '1';
   };
 
-  const handleImageError = () => {
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    console.error(`${useCloudflare ? 'Cloudflare' : 'Local'} image failed to load:`, src);
+    
     // Fallback to original image if Cloudflare fails
     if (useCloudflare && currentSrc !== src) {
       console.log('Cloudflare image failed, falling back to local image');
       setCurrentSrc(src);
       setUseCloudflare(false);
+    } else {
+      e.currentTarget.style.border = '2px solid red';
     }
   };
 
   // Don't render anything until we have a source
-  if (isLoading || !currentSrc) {
+  if (isLoading) {
     return (
       <div 
         className={`${className} bg-gray-800 animate-pulse`}
@@ -109,6 +118,7 @@ export const OptimizedMediaItem: React.FC<OptimizedMediaItemProps> = ({
         className={className}
         style={{ animation: 'fadeIn 1s forwards', animationDelay: `${idx * 0.05}s` }}
         onLoadedData={e => (e.currentTarget.style.opacity = '1')}
+        onError={(e) => console.error('Video failed to load:', src)}
       />
     );
   }
