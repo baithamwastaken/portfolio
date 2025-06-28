@@ -52,7 +52,7 @@ const FaceImageTest: React.FC = () => {
     if (isCloudflareConfigured() && shouldUseCloudflare(imageId)) {
       try {
         results.cloudflareId = getCloudflareImageId(imageId);
-        results.cloudflareUrl = getCloudflareImageUrl(imageId, 'background');
+        results.cloudflareUrl = getCloudflareImageUrl(results.cloudflareId, 'background');
         console.log('Cloudflare ID:', results.cloudflareId);
         console.log('Cloudflare URL:', results.cloudflareUrl);
         

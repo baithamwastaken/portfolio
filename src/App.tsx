@@ -4,6 +4,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { OptimizedMediaItem } from './components/OptimizedMediaItem';
 import { getCloudflareImageUrl, isCloudflareConfigured } from './utils/cloudflareImages';
+import { getCloudflareImageId } from './utils/cloudflareImageMapping';
 import FaceImageTest from './components/FaceImageTest';
 
 const navLeft = 'haitham';
@@ -349,8 +350,12 @@ function AboutPage() {
     
     if (isCloudflareConfigured()) {
       try {
-        // Use the Cloudflare Images system
-        const cloudflareUrl = getCloudflareImageUrl(imageId, 'background');
+        // Get the Cloudflare Image ID from the mapping
+        const cloudflareImageId = getCloudflareImageId(imageId);
+        console.log('About page - Cloudflare Image ID:', cloudflareImageId);
+        
+        // Use the Cloudflare Images system with the actual Cloudflare ID
+        const cloudflareUrl = getCloudflareImageUrl(cloudflareImageId, 'background');
         console.log('About page background - Cloudflare URL:', cloudflareUrl);
         return cloudflareUrl;
       } catch (error) {
