@@ -4,17 +4,17 @@ const CLOUDFLARE_ACCOUNT_HASH = process.env.REACT_APP_CLOUDFLARE_ACCOUNT_HASH ||
 
 // Image variants using flexible variants with transformation parameters
 export const IMAGE_VARIANTS = {
-  // Flexible variants with transformation parameters
+  // Flexible variants with transformation parameters - using fit=scale-down to prevent cropping
   public: 'public', // Use the existing public variant
-  thumbnail: 'w=300,h=300,fit=cover,f=webp', // Small thumbnails
-  gallery: 'w=800,h=600,fit=cover,f=webp', // Gallery images
-  full: 'w=1200,h=800,fit=cover,f=webp', // Full size images
-  background: 'w=1920,h=1080,fit=cover,f=webp', // Background images
+  thumbnail: 'w=300,h=300,fit=scale-down,f=webp', // Small thumbnails without cropping
+  gallery: 'w=800,h=600,fit=scale-down,f=webp', // Gallery images without cropping
+  full: 'w=1200,h=800,fit=scale-down,f=webp', // Full size images without cropping
+  background: 'w=1920,h=1080,fit=scale-down,f=webp', // Background images without cropping
   
   // Additional flexible variants
-  webp: 'w=800,h=600,fit=cover,f=webp',
-  avif: 'w=800,h=600,fit=cover,f=avif',
-  jpeg: 'w=800,h=600,fit=cover,f=jpeg',
+  webp: 'w=800,h=600,fit=scale-down,f=webp',
+  avif: 'w=800,h=600,fit=scale-down,f=avif',
+  jpeg: 'w=800,h=600,fit=scale-down,f=jpeg',
 } as const;
 
 export type ImageVariant = keyof typeof IMAGE_VARIANTS;
