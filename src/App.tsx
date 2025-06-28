@@ -3,6 +3,8 @@ import Masonry from 'react-masonry-css';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { OptimizedMediaItem } from './components/OptimizedMediaItem';
+import { ImageDebug } from './components/ImageDebug';
+import { CloudflareImageTester } from './components/CloudflareImageTester';
 import { getCloudflareImageUrl, isCloudflareConfigured } from './utils/cloudflareImages';
 
 const navLeft = 'haitham';
@@ -162,6 +164,13 @@ function GalleryPage() {
       </nav>
       {/* Spacer for nav */}
       <div className="h-20" />
+      
+      {/* Debug Section - Temporary */}
+      <div className="px-4 pt-8">
+        <CloudflareImageTester imageName="batman.jpg" />
+        <CloudflareImageTester imageName="audi.png" />
+        <CloudflareImageTester imageName="chair.jpg" />
+      </div>
       
       {/* Masonry Infinite Gallery */}
       <main className="w-full px-4 pt-8">

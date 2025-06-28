@@ -17,6 +17,7 @@ export const OptimizedMediaItem: React.FC<OptimizedMediaItemProps> = ({
   const [imageLoaded, setImageLoaded] = useState(false);
   const [currentSrc, setCurrentSrc] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
+  const [useCloudflare, setUseCloudflare] = useState(false);
 
   const isVideo = src.toLowerCase().endsWith('.mp4') || src.toLowerCase().endsWith('.mov');
   
@@ -34,30 +35,31 @@ export const OptimizedMediaItem: React.FC<OptimizedMediaItemProps> = ({
 
     const imageId = getImageId(src);
     
-    if (isCloudflareConfigured()) {
-      try {
-        // Use Cloudflare Images with WebP-optimized variants
-        const responsiveUrls = getResponsiveImageUrls(imageId, ['gallery_avif', 'gallery', 'gallery_jpeg']);
-        const cloudflareUrl = responsiveUrls.gallery;
-        
-        // Debug: Show the Cloudflare URL being used
-        console.log(`Gallery Image: ${imageId} → ${cloudflareUrl}`);
-        
-        // Only use Cloudflare URL if it's valid and not the fallback path
-        if (cloudflareUrl && cloudflareUrl !== `/images/${imageId}`) {
-          setCurrentSrc(cloudflareUrl);
-        } else {
-          setCurrentSrc(src);
-        }
-      } catch (error) {
-        console.warn('Failed to generate Cloudflare URL, using fallback:', error);
-        setCurrentSrc(src);
-      }
-    } else {
-      // Fallback to original path
-      setCurrentSrc(src);
-    }
+    // For now, use local images by default
+    setCurrentSrc(src);
+    setUseCloudflare(false);
     setIsLoading(false);
+    
+    // Optional: Test Cloudflare if configured
+    if (isCloudflareConfigured()) {
+      // Test if Cloudflare is working by trying to load one image
+      const testImage = new Image();
+      const cloudflareUrl = `https://${process.env.REACT_APP_CLOUDFLARE_ACCOUNT_ID}.imagedelivery.net/${imageId}/w=800,h=600,fit=cover,f=webp`;
+      
+      testImage.onload = () => {
+        console.log('Cloudflare Images working, switching to Cloudflare URLs');
+        setUseCloudflare(true);
+        setCurrentSrc(cloudflareUrl);
+      };
+      
+      testImage.onerror = () => {
+        console.log('Cloudflare Images not working, using local images');
+        setUseCloudflare(false);
+        setCurrentSrc(src);
+      };
+      
+      testImage.src = cloudflareUrl;
+    }
   }, [src, isVideo]);
 
   const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
@@ -67,8 +69,10 @@ export const OptimizedMediaItem: React.FC<OptimizedMediaItemProps> = ({
 
   const handleImageError = () => {
     // Fallback to original image if Cloudflare fails
-    if (isCloudflareConfigured() && currentSrc !== src) {
+    if (useCloudflare && currentSrc !== src) {
+      console.log('Cloudflare image failed, falling back to local image');
       setCurrentSrc(src);
+      setUseCloudflare(false);
     }
   };
 
@@ -97,44 +101,21 @@ export const OptimizedMediaItem: React.FC<OptimizedMediaItemProps> = ({
     );
   }
 
-  const imageId = getImageId(src);
-  const responsiveUrls = isCloudflareConfigured() ? getResponsiveImageUrls(imageId, ['gallery_avif', 'gallery', 'gallery_jpeg']) : null;
-
-  // Only use responsive URLs if they are valid and not fallback paths
-  const validResponsiveUrls = responsiveUrls && 
-    responsiveUrls.gallery_avif && 
-    responsiveUrls.gallery && 
-    responsiveUrls.gallery_jpeg &&
-    responsiveUrls.gallery_avif !== `/images/${imageId}` &&
-    responsiveUrls.gallery !== `/images/${imageId}` &&
-    responsiveUrls.gallery_jpeg !== `/images/${imageId}`;
-
+  // For now, use simple img tag with local images
   return (
-    <picture>
-      {/* Modern formats for browsers that support them - AVIF first, then WebP */}
-      {validResponsiveUrls && (
-        <>
-          <source srcSet={responsiveUrls.gallery_avif} type="image/avif" />
-          <source srcSet={responsiveUrls.gallery} type="image/webp" />
-          <source srcSet={responsiveUrls.gallery_jpeg} type="image/jpeg" />
-        </>
-      )}
-      
-      {/* Fallback image */}
-      <img
-        src={currentSrc}
-        alt={`artwork-${idx}`}
-        className={className}
-        style={{ 
-          animation: 'fadeIn 1s forwards', 
-          animationDelay: `${idx * 0.05}s`,
-          opacity: imageLoaded ? 1 : 0
-        }}
-        onLoad={handleImageLoad}
-        onError={handleImageError}
-        loading="lazy"
-        decoding="async"
-      />
-    </picture>
+    <img
+      src={currentSrc}
+      alt={`artwork-${idx}`}
+      className={className}
+      style={{ 
+        animation: 'fadeIn 1s forwards', 
+        animationDelay: `${idx * 0.05}s`,
+        opacity: imageLoaded ? 1 : 0
+      }}
+      onLoad={handleImageLoad}
+      onError={handleImageError}
+      loading="lazy"
+      decoding="async"
+    />
   );
 }; 
