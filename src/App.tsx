@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Masonry from 'react-masonry-css';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { OptimizedMediaItem } from './components/OptimizedMediaItem';
+import { getCloudflareImageUrl, isCloudflareConfigured } from './utils/cloudflareImages';
 
 const navLeft = 'haitham';
 const navRight = [
@@ -78,33 +80,7 @@ const breakpointColumnsObj = {
 
 // Component to render either image or video
 const MediaItem = ({ src, idx }: { src: string; idx: number }) => {
-  const isVideo = src.toLowerCase().endsWith('.mp4') || src.toLowerCase().endsWith('.mov');
-  
-  if (isVideo) {
-    return (
-      <video
-        src={src}
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="w-full object-cover opacity-0 group-hover:opacity-90 transition-all duration-700 ease-out"
-        style={{ animation: 'fadeIn 1s forwards', animationDelay: `${idx * 0.05}s` }}
-        onLoadedData={e => (e.currentTarget.style.opacity = '1')}
-      />
-    );
-  }
-  
-  return (
-    <img
-      src={src}
-      alt={`artwork-${idx}`}
-      className="w-full object-cover opacity-0 group-hover:opacity-90 transition-all duration-700 ease-out"
-      style={{ animation: 'fadeIn 1s forwards', animationDelay: `${idx * 0.05}s` }}
-      onLoad={e => (e.currentTarget.style.opacity = '1')}
-      loading="lazy"
-    />
-  );
+  return <OptimizedMediaItem src={src} idx={idx} />;
 };
 
 function GalleryPage() {
@@ -369,11 +345,19 @@ function AboutPage() {
     setBgPos(`${50 + offsetX}% ${50 + offsetY}%`);
   };
 
+  // Get optimized background image URL
+  const getBackgroundImageUrl = () => {
+    if (isCloudflareConfigured()) {
+      return getCloudflareImageUrl('face.jpeg', 'background');
+    }
+    return '/assets/face.jpeg';
+  };
+
   return (
     <div
       className="min-h-screen bg-black dark:bg-black text-white flex flex-col items-center justify-center relative"
       style={{
-        backgroundImage: 'url(/assets/face.jpeg)',
+        backgroundImage: `url(${getBackgroundImageUrl()})`,
         backgroundSize: '110%', // Less zoom
         backgroundPosition: bgPos,
         backgroundRepeat: 'no-repeat',
