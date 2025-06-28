@@ -4,7 +4,6 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { OptimizedMediaItem } from './components/OptimizedMediaItem';
 import { getCloudflareImageUrl, isCloudflareConfigured } from './utils/cloudflareImages';
-import { ImageOptimizationTest } from './components/ImageOptimizationTest';
 
 const navLeft = 'haitham';
 const navRight = [
@@ -163,25 +162,6 @@ function GalleryPage() {
       </nav>
       {/* Spacer for nav */}
       <div className="h-20" />
-      
-      {/* Debug panel for gallery images - remove after testing */}
-      <div className="fixed top-24 left-4 z-50 bg-black bg-opacity-80 p-4 rounded text-white text-sm max-w-md">
-        <h3 className="font-bold mb-2">Gallery Images Debug</h3>
-        <div className="space-y-1 text-xs">
-          <div><strong>Cloudflare Configured:</strong> {isCloudflareConfigured() ? '✅ Yes' : '❌ No'}</div>
-          <div><strong>Account ID:</strong> {process.env.REACT_APP_CLOUDFLARE_ACCOUNT_ID}</div>
-          <div><strong>Total Images:</strong> {imageFiles.length}</div>
-          <div><strong>First 3 Images:</strong></div>
-          {imageFiles.slice(0, 3).map((file, idx) => (
-            <div key={idx} className="ml-2">
-              {file} → {isCloudflareConfigured() ? 
-                `https://${process.env.REACT_APP_CLOUDFLARE_ACCOUNT_ID}.imagedelivery.net/${file}/w=800,h=600,fit=cover,f=webp` : 
-                `/images/${file}`
-              }
-            </div>
-          ))}
-        </div>
-      </div>
       
       {/* Masonry Infinite Gallery */}
       <main className="w-full px-4 pt-8">
