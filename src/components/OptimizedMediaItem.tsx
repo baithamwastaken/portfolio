@@ -16,6 +16,7 @@ export const OptimizedMediaItem: React.FC<OptimizedMediaItemProps> = ({
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [currentSrc, setCurrentSrc] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
 
   const isVideo = src.toLowerCase().endsWith('.mp4') || src.toLowerCase().endsWith('.mov');
   
@@ -27,6 +28,7 @@ export const OptimizedMediaItem: React.FC<OptimizedMediaItemProps> = ({
   useEffect(() => {
     if (isVideo) {
       setCurrentSrc(src);
+      setIsLoading(false);
       return;
     }
 
@@ -40,6 +42,7 @@ export const OptimizedMediaItem: React.FC<OptimizedMediaItemProps> = ({
       // Fallback to original path
       setCurrentSrc(src);
     }
+    setIsLoading(false);
   }, [src, isVideo]);
 
   const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
@@ -53,6 +56,16 @@ export const OptimizedMediaItem: React.FC<OptimizedMediaItemProps> = ({
       setCurrentSrc(src);
     }
   };
+
+  // Don't render anything until we have a source
+  if (isLoading || !currentSrc) {
+    return (
+      <div 
+        className={`${className} bg-gray-800 animate-pulse`}
+        style={{ animation: 'fadeIn 1s forwards', animationDelay: `${idx * 0.05}s` }}
+      />
+    );
+  }
 
   if (isVideo) {
     return (
