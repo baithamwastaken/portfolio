@@ -1,5 +1,4 @@
 // Cloudflare Images configuration
-const CLOUDFLARE_ACCOUNT_ID = process.env.REACT_APP_CLOUDFLARE_ACCOUNT_ID || 'ab486e3586d401ea089ce76298c70e92';
 const CLOUDFLARE_IMAGES_DOMAIN = process.env.REACT_APP_CLOUDFLARE_IMAGES_DOMAIN || 'imagedelivery.net';
 const CLOUDFLARE_ACCOUNT_HASH = process.env.REACT_APP_CLOUDFLARE_ACCOUNT_HASH || '_91C5nLBdJJSmgo9yUewLA';
 
@@ -10,6 +9,7 @@ export const IMAGE_VARIANTS = {
   thumbnail: 'thumbnail', // Thumbnail variant
   gallery: 'gallery', // Gallery variant
   full: 'full', // Full size variant
+  background: 'background', // Background variant
   
   // Fallback variants with parameters
   webp: 'w=800,h=600,fit=cover,f=webp',
@@ -80,7 +80,7 @@ export function getResponsiveSizes(imageId: string) {
     small: getCloudflareImageUrl(imageId, 'thumbnail'),
     medium: getCloudflareImageUrl(imageId, 'gallery'),
     large: getCloudflareImageUrl(imageId, 'full'),
-    background: getCloudflareImageUrl(imageId, 'public'),
+    background: getCloudflareImageUrl(imageId, 'background'),
   };
 }
 
