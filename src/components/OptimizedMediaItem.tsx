@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getResponsiveImageUrls, isCloudflareConfigured, ImageVariant } from '../utils/cloudflareImages';
+import { getCloudflareImageUrl, isCloudflareConfigured, ImageVariant } from '../utils/cloudflareImages';
 
 interface OptimizedMediaItemProps {
   src: string;
@@ -35,32 +35,44 @@ export const OptimizedMediaItem: React.FC<OptimizedMediaItemProps> = ({
 
     const imageId = getImageId(src);
     
-    // For now, use local images by default
-    setCurrentSrc(src);
-    setUseCloudflare(false);
-    setIsLoading(false);
-    
-    // Optional: Test Cloudflare if configured
     if (isCloudflareConfigured()) {
-      // Test if Cloudflare is working by trying to load one image
-      const testImage = new Image();
-      const cloudflareUrl = `https://${process.env.REACT_APP_CLOUDFLARE_ACCOUNT_ID}.imagedelivery.net/${imageId}/w=800,h=600,fit=cover,f=webp`;
-      
-      testImage.onload = () => {
-        console.log('Cloudflare Images working, switching to Cloudflare URLs');
-        setUseCloudflare(true);
-        setCurrentSrc(cloudflareUrl);
-      };
-      
-      testImage.onerror = () => {
-        console.log('Cloudflare Images not working, using local images');
+      try {
+        // Generate Cloudflare URL
+        const cloudflareUrl = getCloudflareImageUrl(imageId, variant);
+        
+        // Debug: Show the Cloudflare URL being used
+        console.log(`Gallery Image: ${imageId} → ${cloudflareUrl}`);
+        
+        // Test if Cloudflare URL works
+        const testImage = new Image();
+        testImage.onload = () => {
+          console.log('Cloudflare Images working, using Cloudflare URL');
+          setUseCloudflare(true);
+          setCurrentSrc(cloudflareUrl);
+          setIsLoading(false);
+        };
+        
+        testImage.onerror = () => {
+          console.log('Cloudflare Images not working, using local image');
+          setUseCloudflare(false);
+          setCurrentSrc(src);
+          setIsLoading(false);
+        };
+        
+        testImage.src = cloudflareUrl;
+      } catch (error) {
+        console.warn('Failed to generate Cloudflare URL, using fallback:', error);
         setUseCloudflare(false);
         setCurrentSrc(src);
-      };
-      
-      testImage.src = cloudflareUrl;
+        setIsLoading(false);
+      }
+    } else {
+      // Fallback to original path
+      setUseCloudflare(false);
+      setCurrentSrc(src);
+      setIsLoading(false);
     }
-  }, [src, isVideo]);
+  }, [src, isVideo, variant]);
 
   const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     setImageLoaded(true);
@@ -101,7 +113,7 @@ export const OptimizedMediaItem: React.FC<OptimizedMediaItemProps> = ({
     );
   }
 
-  // For now, use simple img tag with local images
+  // Use simple img tag with proper error handling
   return (
     <img
       src={currentSrc}

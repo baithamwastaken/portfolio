@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getCloudflareImageUrl } from '../utils/cloudflareImages';
 
 interface CloudflareImageTesterProps {
   imageName: string;
@@ -18,12 +19,14 @@ export const CloudflareImageTester: React.FC<CloudflareImageTesterProps> = ({ im
     imageName.toLowerCase().replace(/\.[^/.]+$/, ''), // Lowercase without extension
     imageName.replace(/[^a-zA-Z0-9]/g, ''), // Alphanumeric only
     imageName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase(), // Lowercase alphanumeric only
+    // Clean version (what our utility generates)
+    imageName.replace(/\.[^/.]+$/, '').replace(/[^a-zA-Z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').toLowerCase(),
   ];
 
   const testImage = (id: string) => {
     return new Promise<boolean>((resolve) => {
       const img = new Image();
-      const url = `https://${accountId}.imagedelivery.net/${id}/w=800,h=600,fit=cover,f=webp`;
+      const url = getCloudflareImageUrl(id, 'gallery');
       
       img.onload = () => {
         console.log(`✅ Image found: ${id} → ${url}`);
@@ -79,7 +82,7 @@ export const CloudflareImageTester: React.FC<CloudflareImageTesterProps> = ({ im
             <strong>{success ? '✅' : '❌'}</strong> {id}
             {success && (
               <div className="text-xs mt-1">
-                URL: https://{accountId}.imagedelivery.net/{id}/w=800,h=600,fit=cover,f=webp
+                URL: {getCloudflareImageUrl(id, 'gallery')}
               </div>
             )}
           </div>

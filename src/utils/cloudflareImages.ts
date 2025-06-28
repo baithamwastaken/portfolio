@@ -30,6 +30,25 @@ export const IMAGE_VARIANTS = {
 export type ImageVariant = keyof typeof IMAGE_VARIANTS;
 
 /**
+ * Clean image ID for Cloudflare URLs
+ * @param imageId - The original image ID
+ * @returns Cleaned image ID safe for URLs
+ */
+function cleanImageId(imageId: string): string {
+  // Remove file extension and clean the name
+  const nameWithoutExt = imageId.replace(/\.[^/.]+$/, '');
+  
+  // Replace spaces and special characters with hyphens
+  const cleaned = nameWithoutExt
+    .replace(/[^a-zA-Z0-9]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .toLowerCase();
+  
+  return cleaned;
+}
+
+/**
  * Generate a Cloudflare Images URL
  * @param imageId - The Cloudflare Images ID
  * @param variant - The image variant to use
@@ -42,7 +61,9 @@ export function getCloudflareImageUrl(imageId: string, variant: ImageVariant = '
   }
   
   const variantParams = IMAGE_VARIANTS[variant];
-  return `https://${CLOUDFLARE_ACCOUNT_ID}.${CLOUDFLARE_IMAGES_DOMAIN}/${imageId}/${variantParams}`;
+  const cleanedId = cleanImageId(imageId);
+  
+  return `https://${CLOUDFLARE_ACCOUNT_ID}.${CLOUDFLARE_IMAGES_DOMAIN}/${cleanedId}/${variantParams}`;
 }
 
 /**
