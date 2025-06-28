@@ -4,7 +4,6 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { OptimizedMediaItem } from './components/OptimizedMediaItem';
 import { getCloudflareImageUrl, isCloudflareConfigured } from './utils/cloudflareImages';
-import TunnelDebug from './components/TunnelDebug';
 
 const navLeft = 'haitham';
 const navRight = [
@@ -122,9 +121,6 @@ function GalleryPage() {
 
   return (
     <div className="min-h-screen bg-black dark:bg-black text-white">
-      {/* Debug component for tunnel issues */}
-      <TunnelDebug />
-      
       {/* Transparent Nav Bar */}
       <nav className="flex justify-between items-center px-8 py-6 w-full fixed top-0 left-0 z-50 select-none">
         <Link
