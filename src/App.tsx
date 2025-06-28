@@ -165,15 +165,6 @@ function GalleryPage() {
           {navLeft}
         </Link>
         
-        {/* Centered Logo */}
-        <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
-          <img 
-            src="/wlogo.png" 
-            alt="Logo" 
-            className="h-8 w-auto opacity-90 hover:opacity-100 transition-opacity duration-200"
-          />
-        </div>
-        
         <div className="flex gap-8">
           <Link
             to="/about"
@@ -397,15 +388,6 @@ function AboutPage() {
         >
           {navLeft}
         </Link>
-        
-        {/* Centered Logo */}
-        <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
-          <img 
-            src="/wlogo.png" 
-            alt="Logo" 
-            className="h-8 w-auto opacity-90 hover:opacity-100 transition-opacity duration-200"
-          />
-        </div>
         
         <div className="flex gap-8">
           <Link
