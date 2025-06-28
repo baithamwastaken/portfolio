@@ -1,27 +1,17 @@
 // Cloudflare Images configuration
 const CLOUDFLARE_ACCOUNT_ID = process.env.REACT_APP_CLOUDFLARE_ACCOUNT_ID || 'ab486e3586d401ea089ce76298c70e92';
 const CLOUDFLARE_IMAGES_DOMAIN = process.env.REACT_APP_CLOUDFLARE_IMAGES_DOMAIN || 'imagedelivery.net';
+const CLOUDFLARE_ACCOUNT_HASH = process.env.REACT_APP_CLOUDFLARE_ACCOUNT_HASH || '_91C5nLBdJJSmgo9yUewLA';
 
-// Image variants for different use cases - optimized for WebP and responsive sizing
+// Image variants for different use cases - using common variant names
 export const IMAGE_VARIANTS = {
-  // Small thumbnails
-  thumbnail: 'w=300,h=300,fit=cover,f=webp',
-  thumbnail_avif: 'w=300,h=300,fit=cover,f=avif',
+  // Basic variants that are commonly available
+  public: 'public', // Default public variant
+  thumbnail: 'thumbnail', // Thumbnail variant
+  gallery: 'gallery', // Gallery variant
+  full: 'full', // Full size variant
   
-  // Gallery images - optimized for WebP
-  gallery: 'w=800,h=600,fit=cover,f=webp',
-  gallery_avif: 'w=800,h=600,fit=cover,f=avif',
-  gallery_jpeg: 'w=800,h=600,fit=cover,f=jpeg',
-  
-  // Larger images for detailed view
-  full: 'w=1200,h=800,fit=cover,f=webp',
-  full_avif: 'w=1200,h=800,fit=cover,f=avif',
-  
-  // Background images
-  background: 'w=1920,h=1080,fit=cover,f=webp',
-  background_avif: 'w=1920,h=1080,fit=cover,f=avif',
-  
-  // Legacy formats for fallback
+  // Fallback variants with parameters
   webp: 'w=800,h=600,fit=cover,f=webp',
   avif: 'w=800,h=600,fit=cover,f=avif',
   jpeg: 'w=800,h=600,fit=cover,f=jpeg',
@@ -55,15 +45,16 @@ function cleanImageId(imageId: string): string {
  * @returns The complete Cloudflare Images URL
  */
 export function getCloudflareImageUrl(imageId: string, variant: ImageVariant = 'gallery'): string {
-  if (!CLOUDFLARE_ACCOUNT_ID) {
-    console.warn('Cloudflare Account ID not configured. Using fallback image path.');
+  if (!CLOUDFLARE_ACCOUNT_HASH) {
+    console.warn('Cloudflare Account Hash not configured. Using fallback image path.');
     return `/images/${imageId}`;
   }
   
   const variantParams = IMAGE_VARIANTS[variant];
   const cleanedId = cleanImageId(imageId);
   
-  return `https://${CLOUDFLARE_ACCOUNT_ID}.${CLOUDFLARE_IMAGES_DOMAIN}/${cleanedId}/${variantParams}`;
+  // Use the custom domain format: https://imagedelivery.net/_91C5nLBdJJSmgo9yUewLA/<image_id>/<variant_name>
+  return `https://${CLOUDFLARE_IMAGES_DOMAIN}/${CLOUDFLARE_ACCOUNT_HASH}/${cleanedId}/${variantParams}`;
 }
 
 /**
@@ -72,7 +63,7 @@ export function getCloudflareImageUrl(imageId: string, variant: ImageVariant = '
  * @param variants - Array of variants to generate
  * @returns Object with variant URLs
  */
-export function getResponsiveImageUrls(imageId: string, variants: ImageVariant[] = ['gallery_avif', 'gallery', 'gallery_jpeg']) {
+export function getResponsiveImageUrls(imageId: string, variants: ImageVariant[] = ['gallery', 'public']) {
   return variants.reduce((acc, variant) => {
     acc[variant] = getCloudflareImageUrl(imageId, variant);
     return acc;
@@ -89,7 +80,7 @@ export function getResponsiveSizes(imageId: string) {
     small: getCloudflareImageUrl(imageId, 'thumbnail'),
     medium: getCloudflareImageUrl(imageId, 'gallery'),
     large: getCloudflareImageUrl(imageId, 'full'),
-    background: getCloudflareImageUrl(imageId, 'background'),
+    background: getCloudflareImageUrl(imageId, 'public'),
   };
 }
 
@@ -97,5 +88,5 @@ export function getResponsiveSizes(imageId: string) {
  * Check if Cloudflare Images is properly configured
  */
 export function isCloudflareConfigured(): boolean {
-  return !!CLOUDFLARE_ACCOUNT_ID;
+  return !!CLOUDFLARE_ACCOUNT_HASH;
 } 

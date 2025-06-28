@@ -35,7 +35,7 @@ export const CloudflareStatus: React.FC = () => {
       };
       img.src = cloudflareUrl;
     });
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="p-4 bg-gray-900 border border-gray-700 rounded-lg mb-4">
@@ -46,7 +46,10 @@ export const CloudflareStatus: React.FC = () => {
           <strong>Cloudflare Configured:</strong> {isConfigured ? '✅ Yes' : '❌ No'}
         </div>
         <div className="text-gray-300">
-          <strong>Account ID:</strong> {process.env.REACT_APP_CLOUDFLARE_ACCOUNT_ID || 'Not set'}
+          <strong>Account Hash:</strong> {process.env.REACT_APP_CLOUDFLARE_ACCOUNT_HASH || 'Not set'}
+        </div>
+        <div className="text-gray-300">
+          <strong>Domain:</strong> {process.env.REACT_APP_CLOUDFLARE_IMAGES_DOMAIN || 'imagedelivery.net'}
         </div>
       </div>
       
