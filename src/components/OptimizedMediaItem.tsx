@@ -37,7 +37,8 @@ export const OptimizedMediaItem: React.FC<OptimizedMediaItemProps> = ({
 
     const imageId = getImageId(src);
     
-    if (isCloudflareConfigured() && shouldUseCloudflare(imageId) && retryCount < 2) {
+    // Always try Cloudflare first if configured and it's an image
+    if (isCloudflareConfigured() && shouldUseCloudflare(imageId)) {
       try {
         // Get the Cloudflare Image ID
         const cloudflareId = getCloudflareImageId(imageId);
@@ -48,32 +49,10 @@ export const OptimizedMediaItem: React.FC<OptimizedMediaItemProps> = ({
         // Debug: Show the Cloudflare URL being used
         console.log(`Gallery Image: ${imageId} → ${cloudflareId} → ${cloudflareUrl}`);
         
-        // Test if Cloudflare URL works with timeout
-        const testImage = new Image();
-        const timeout = setTimeout(() => {
-          console.log('Cloudflare image test timed out, using local image');
-          setUseCloudflare(false);
-          setCurrentSrc(src);
-          setIsLoading(false);
-        }, 5000); // 5 second timeout
-        
-        testImage.onload = () => {
-          clearTimeout(timeout);
-          console.log('✅ Cloudflare Images working, using Cloudflare URL');
-          setUseCloudflare(true);
-          setCurrentSrc(cloudflareUrl);
-          setIsLoading(false);
-        };
-        
-        testImage.onerror = () => {
-          clearTimeout(timeout);
-          console.log('❌ Cloudflare Images not working, using local image');
-          setUseCloudflare(false);
-          setCurrentSrc(src);
-          setIsLoading(false);
-        };
-        
-        testImage.src = cloudflareUrl;
+        // Use Cloudflare URL directly - no need to test since we know it works
+        setUseCloudflare(true);
+        setCurrentSrc(cloudflareUrl);
+        setIsLoading(false);
       } catch (error) {
         console.warn('Failed to generate Cloudflare URL, using fallback:', error);
         setUseCloudflare(false);
@@ -86,7 +65,7 @@ export const OptimizedMediaItem: React.FC<OptimizedMediaItemProps> = ({
       setCurrentSrc(src);
       setIsLoading(false);
     }
-  }, [src, isVideo, variant, retryCount]);
+  }, [src, isVideo, variant]);
 
   const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     console.log(`${useCloudflare ? 'Cloudflare' : 'Local'} image loaded successfully:`, src);
@@ -97,14 +76,16 @@ export const OptimizedMediaItem: React.FC<OptimizedMediaItemProps> = ({
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     console.error(`${useCloudflare ? 'Cloudflare' : 'Local'} image failed to load:`, src);
     
-    // Fallback to original image if Cloudflare fails
+    // If Cloudflare failed, try local as fallback
     if (useCloudflare && currentSrc !== src) {
-      console.log('Cloudflare image failed, falling back to local image');
+      console.log('Cloudflare image failed, trying local image');
       setCurrentSrc(src);
       setUseCloudflare(false);
       setRetryCount(prev => prev + 1);
     } else {
+      // If local also failed, show error indicator
       e.currentTarget.style.border = '2px solid red';
+      console.error('Both Cloudflare and local images failed for:', src);
     }
   };
 

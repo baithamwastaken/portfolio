@@ -3,7 +3,6 @@ import Masonry from 'react-masonry-css';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { OptimizedMediaItem } from './components/OptimizedMediaItem';
-import { TunnelDebug } from './components/TunnelDebug';
 import { getCloudflareImageUrl, isCloudflareConfigured } from './utils/cloudflareImages';
 
 const navLeft = 'haitham';
@@ -158,11 +157,6 @@ function GalleryPage() {
       </nav>
       {/* Spacer for nav */}
       <div className="h-20" />
-      
-      {/* Tunnel Debug - Temporary */}
-      <div className="px-4 pt-8">
-        <TunnelDebug />
-      </div>
       
       {/* Masonry Infinite Gallery */}
       <main className="w-full px-4 pt-8">
