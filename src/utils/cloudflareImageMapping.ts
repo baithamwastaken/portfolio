@@ -2,40 +2,42 @@
 // This mapping should be updated with the actual Cloudflare Image IDs from your dashboard
 
 export const CLOUDFLARE_IMAGE_MAPPING: { [key: string]: string } = {
-  // Common patterns - update these with your actual Cloudflare Image IDs
-  'audi.png': 'audi',
-  'back.mp4': 'back',
-  'batman.jpg': 'batman',
-  'chair.jpg': 'chair',
-  'city.mp4': 'city',
-  'cloud-lab.jpg': 'cloud-lab',
-  'discord provile.png': 'discord-provile',
-  'flower.png': 'flower',
-  'glass.mp4': 'glass',
-  'grass.png': 'grass',
-  'hotwheels.mp4': 'hotwheels',
-  'loopy.mp4': 'loopy',
-  'max.jpg': 'max',
-  'mooncar051115_0000.mp4': 'mooncar051115-0000',
-  'museum_1.jpg': 'museum-1',
-  'newbusts.jpg': 'newbusts',
-  'NewLevelSequence.0105.jpg': 'newlevelsequence-0105',
-  'NewLevelSequence1.0640.png': 'newlevelsequence1-0640',
-  'pots.jpg': 'pots',
-  'Room.png': 'room',
-  'skull.jpg': 'skull',
-  'spacehome071040_0000.mp4': 'spacehome071040-0000',
-  'spaceman asset.jpg': 'spaceman-asset',
-  'stardrive.mp4': 'stardrive',
-  'suit_12345_0090.jpg': 'suit-12345-0090',
-  'tele.mp4': 'tele',
-  'there0001-0250.mov': 'there0001-0250',
-  'untitled.jpg': 'untitled',
-  'untitled.png': 'untitled-png',
-  'venus.jpg': 'venus',
-  'warehouse220919_0450.jpg': 'warehouse220919-0450',
-  'watertemple1-studio.jpg': 'watertemple1-studio',
-  'window.png': 'window',
+  // Actual Cloudflare Image IDs from dashboard
+  'audi.png': '3bf4a375-8c0e-4cca-e40b-0b7910bc6100',
+  'flower.png': '1c2c862a-86bd-4c4f-eb9c-98b4e6bca200',
+  'untitled.png': 'efb44bbf-c08c-42af-3fd3-b8d6d7503f00',
+  
+  // Placeholder mappings for other images - update these with actual IDs
+  'back.mp4': 'back', // Videos don't use Cloudflare Images
+  'batman.jpg': 'batman', // Update with actual Cloudflare ID
+  'chair.jpg': 'chair', // Update with actual Cloudflare ID
+  'city.mp4': 'city', // Videos don't use Cloudflare Images
+  'cloud-lab.jpg': 'cloud-lab', // Update with actual Cloudflare ID
+  'discord provile.png': 'discord-provile', // Update with actual Cloudflare ID
+  'glass.mp4': 'glass', // Videos don't use Cloudflare Images
+  'grass.png': 'grass', // Update with actual Cloudflare ID
+  'hotwheels.mp4': 'hotwheels', // Videos don't use Cloudflare Images
+  'loopy.mp4': 'loopy', // Videos don't use Cloudflare Images
+  'max.jpg': 'max', // Update with actual Cloudflare ID
+  'mooncar051115_0000.mp4': 'mooncar051115-0000', // Videos don't use Cloudflare Images
+  'museum_1.jpg': 'museum-1', // Update with actual Cloudflare ID
+  'newbusts.jpg': 'newbusts', // Update with actual Cloudflare ID
+  'NewLevelSequence.0105.jpg': 'newlevelsequence-0105', // Update with actual Cloudflare ID
+  'NewLevelSequence1.0640.png': 'newlevelsequence1-0640', // Update with actual Cloudflare ID
+  'pots.jpg': 'pots', // Update with actual Cloudflare ID
+  'Room.png': 'room', // Update with actual Cloudflare ID
+  'skull.jpg': 'skull', // Update with actual Cloudflare ID
+  'spacehome071040_0000.mp4': 'spacehome071040-0000', // Videos don't use Cloudflare Images
+  'spaceman asset.jpg': 'spaceman-asset', // Update with actual Cloudflare ID
+  'stardrive.mp4': 'stardrive', // Videos don't use Cloudflare Images
+  'suit_12345_0090.jpg': 'suit-12345-0090', // Update with actual Cloudflare ID
+  'tele.mp4': 'tele', // Videos don't use Cloudflare Images
+  'there0001-0250.mov': 'there0001-0250', // Videos don't use Cloudflare Images
+  'untitled.jpg': 'untitled', // Update with actual Cloudflare ID
+  'venus.jpg': 'venus', // Update with actual Cloudflare ID
+  'warehouse220919_0450.jpg': 'warehouse220919-0450', // Update with actual Cloudflare ID
+  'watertemple1-studio.jpg': 'watertemple1-studio', // Update with actual Cloudflare ID
+  'window.png': 'window', // Update with actual Cloudflare ID
 };
 
 /**
