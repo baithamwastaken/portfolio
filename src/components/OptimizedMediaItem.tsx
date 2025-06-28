@@ -33,8 +33,8 @@ export const OptimizedMediaItem: React.FC<OptimizedMediaItemProps> = ({
     const imageId = getImageId(src);
     
     if (isCloudflareConfigured()) {
-      // Use Cloudflare Images with responsive variants
-      const responsiveUrls = getResponsiveImageUrls(imageId, ['webp', 'avif', 'gallery']);
+      // Use Cloudflare Images with WebP-optimized variants
+      const responsiveUrls = getResponsiveImageUrls(imageId, ['gallery_avif', 'gallery', 'gallery_jpeg']);
       setCurrentSrc(responsiveUrls.gallery);
     } else {
       // Fallback to original path
@@ -70,15 +70,16 @@ export const OptimizedMediaItem: React.FC<OptimizedMediaItemProps> = ({
   }
 
   const imageId = getImageId(src);
-  const responsiveUrls = isCloudflareConfigured() ? getResponsiveImageUrls(imageId, ['webp', 'avif', 'gallery']) : null;
+  const responsiveUrls = isCloudflareConfigured() ? getResponsiveImageUrls(imageId, ['gallery_avif', 'gallery', 'gallery_jpeg']) : null;
 
   return (
     <picture>
-      {/* Modern formats for browsers that support them */}
+      {/* Modern formats for browsers that support them - AVIF first, then WebP */}
       {responsiveUrls && (
         <>
-          <source srcSet={responsiveUrls.avif} type="image/avif" />
-          <source srcSet={responsiveUrls.webp} type="image/webp" />
+          <source srcSet={responsiveUrls.gallery_avif} type="image/avif" />
+          <source srcSet={responsiveUrls.gallery} type="image/webp" />
+          <source srcSet={responsiveUrls.gallery_jpeg} type="image/jpeg" />
         </>
       )}
       
