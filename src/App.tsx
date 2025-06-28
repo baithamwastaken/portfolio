@@ -4,6 +4,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { OptimizedMediaItem } from './components/OptimizedMediaItem';
 import { getCloudflareImageUrl, isCloudflareConfigured } from './utils/cloudflareImages';
+import FaceImageTest from './components/FaceImageTest';
 
 const navLeft = 'haitham';
 const navRight = [
@@ -343,20 +344,21 @@ function AboutPage() {
 
   // Get optimized background image URL with proper fallback
   const getBackgroundImageUrl = () => {
+    const imageId = 'face.jpeg';
     const fallbackUrl = '/assets/face.jpeg';
     
     if (isCloudflareConfigured()) {
       try {
-        const cloudflareUrl = getCloudflareImageUrl('face.jpeg', 'background');
-        // Only use Cloudflare URL if it's valid (not empty)
-        if (cloudflareUrl && cloudflareUrl !== `/images/face.jpeg`) {
-          return cloudflareUrl;
-        }
+        // Use the Cloudflare Images system
+        const cloudflareUrl = getCloudflareImageUrl(imageId, 'background');
+        console.log('About page background - Cloudflare URL:', cloudflareUrl);
+        return cloudflareUrl;
       } catch (error) {
-        console.warn('Failed to generate Cloudflare URL, using fallback:', error);
+        console.warn('Failed to generate Cloudflare URL for face.jpeg, using fallback:', error);
       }
     }
     
+    console.log('About page background - using fallback URL:', fallbackUrl);
     return fallbackUrl;
   };
 
@@ -373,6 +375,9 @@ function AboutPage() {
       }}
       onMouseMove={handleMouseMove}
     >
+      {/* Debug component for face image */}
+      <FaceImageTest />
+      
       <nav className="flex justify-between items-center px-8 py-6 w-full fixed top-0 left-0 z-10 select-none">
         <Link
           to="/"
