@@ -197,6 +197,7 @@ function AnimatedHi() {
   const [expanded, setExpanded] = React.useState(false);
   const [revealCount, setRevealCount] = React.useState(0);
   const [encryptedText, setEncryptedText] = React.useState("");
+  const [scrollStage, setScrollStage] = React.useState(0); // 0 = initial, 1 = HI, 2 = decrypt
   const leftFull = 'Haitham';
   const rightFull = 'Iswed';
   const total = leftFull.length + rightFull.length;
@@ -207,29 +208,30 @@ function AnimatedHi() {
   const right = revealCount > leftFull.length ? rightFull.slice(0, revealCount - leftFull.length) : '';
 
   // Progress for HI expansion (0 to 1)
-  const hiProgress = hovered ? 1 : 0;
+  const hiProgress = hovered || scrollStage >= 1 ? 1 : 0;
   // Progress for full name expansion (0 to 1)
-  const progress = expanded ? revealCount / total : 0;
+  const isExpanded = expanded || scrollStage === 2;
+  const progress = isExpanded ? revealCount / total : 0;
   // Max translation for HI (closer together), and for full name
   const hiMaxTranslate = 60; // px, much closer for HI
   const nameMaxTranslate = 900; // px, full expansion for name
 
   // Encryption effect for the revealed text
   React.useEffect(() => {
-    if (expanded && revealCount < total) {
+    if (isExpanded && revealCount < total) {
       const timer = setTimeout(() => {
         setRevealCount(revealCount + 1);
       }, 80);
       return () => clearTimeout(timer);
     }
-    if (!expanded && revealCount > 0) {
+    if (!isExpanded && revealCount > 0) {
       setRevealCount(0);
     }
-  }, [expanded, revealCount, total]);
+  }, [isExpanded, revealCount, total]);
 
   // Generate encrypted text for the remaining characters
   React.useEffect(() => {
-    if (expanded) {
+    if (isExpanded) {
       const remainingLength = total - revealCount;
       const encrypted = Array.from({ length: remainingLength }, () => 
         chars[Math.floor(Math.random() * chars.length)]
@@ -238,14 +240,14 @@ function AnimatedHi() {
     } else {
       setEncryptedText("");
     }
-  }, [expanded, revealCount, total, chars]);
+  }, [isExpanded, revealCount, total, chars]);
 
   // Handle click - toggle expanded state
   const handleClick = () => {
-    if (hovered && !expanded) {
+    if ((hovered || scrollStage >= 1) && !isExpanded) {
       // First click: expand
       setExpanded(true);
-    } else if (expanded) {
+    } else if (isExpanded) {
       // Second click: collapse
       setExpanded(false);
       setHovered(false);
@@ -254,10 +256,25 @@ function AnimatedHi() {
 
   // On mouse leave, only reset hover (not expanded state)
   const handleMouseLeave = () => {
-    if (!expanded) {
+    if (!isExpanded) {
       setHovered(false);
     }
   };
+
+  // Scroll event logic
+  React.useEffect(() => {
+    const onScroll = () => {
+      if (scrollStage < 2) {
+        setScrollStage((prev) => Math.min(prev + 1, 2));
+      }
+    };
+    window.addEventListener('wheel', onScroll, { passive: true });
+    window.addEventListener('touchmove', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('wheel', onScroll);
+      window.removeEventListener('touchmove', onScroll);
+    };
+  }, [scrollStage]);
 
   return (
     <div
@@ -309,7 +326,7 @@ function AnimatedHi() {
           zIndex: 1,
           pointerEvents: 'auto',
           minWidth: '1ch',
-          opacity: expanded ? 1 : 0,
+          opacity: isExpanded ? 1 : 0,
           transition: 'opacity 0.3s',
           fontFamily: `'Open Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif`,
         }}
@@ -450,7 +467,8 @@ function ContactPage() {
       {/* Top bar */}
       <div className="w-full flex justify-between items-start px-8 pt-4 text-xs" style={{ fontFamily: 'monospace' }}>
         <div>US EASTERN / {easternTime}</div>
-        <div className="text-center w-full absolute left-0 right-0 mx-auto" style={{ pointerEvents: 'none' }}>
+        {/* Email top center: desktop only */}
+        <div className="hidden md:block text-center w-full absolute left-0 right-0 mx-auto" style={{ pointerEvents: 'none' }}>
           <span className="inline-block" style={{ pointerEvents: 'auto' }}>INFO@HAITHAMISWED.COM</span>
         </div>
         <button className="ml-4 cursor-pointer bg-transparent border-none p-0 text-inherit" style={{ fontFamily: 'monospace' }} onClick={handleClose}>[CLOSE]</button>
@@ -459,8 +477,8 @@ function ContactPage() {
       {/* Main content */}
       <div className="flex flex-col md:flex-row items-start w-full pt-8 md:pt-16 px-4 md:px-12 gap-0">
         {/* Left: Large Info, flush left */}
-        <div className="flex flex-col justify-start items-start w-full md:w-auto" style={{ minWidth: '0' }}>
-          <span className="text-[14vw] md:text-[10vw] font-bold leading-none select-none mb-2 md:mb-0" style={{ fontFamily: 'monospace', lineHeight: 1 }}>Info</span>
+        <div className="flex flex-col justify-start items-start w-full md:w-auto" style={{ minWidth: '220px' }}>
+          <span className="text-[12vw] md:text-[8vw] font-bold leading-none select-none mb-2 md:mb-0" style={{ fontFamily: 'monospace', lineHeight: 1 }}>hello</span>
         </div>
         {/* Right: Clients and Awards block, responsive */}
         <div className="flex flex-col items-start justify-start w-full md:ml-[8vw] mt-2">
@@ -529,8 +547,11 @@ function ContactPage() {
             <Link to="/advertising" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit' }}>ADVERTISING</Link>
           </div>
         </div>
-        {/* Mobile: stacked, left-aligned footer (menu only, copyright stays pinned left) */}
+        {/* Mobile: email above menu, then stacked, left-aligned footer (menu only, copyright stays pinned left) */}
         <div className="block md:hidden w-full px-4 pb-4 pt-8 text-xs flex flex-col gap-1 z-10 select-none" style={{ fontFamily: 'monospace' }}>
+          <div className="w-full text-left mb-2">
+            <span className="inline-block" style={{ pointerEvents: 'auto' }}>INFO@HAITHAMISWED.COM</span>
+          </div>
           <Link to="/privacy-policy" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit', textTransform: 'uppercase', letterSpacing: '0.01em' }}>PRIVACY POLICY</Link>
           <Link to="/cookie-policy" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit', textTransform: 'uppercase', letterSpacing: '0.01em' }}>COOKIE POLICY</Link>
           <Link to="/commercial" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit', textTransform: 'uppercase', letterSpacing: '0.01em' }}>COMMERCIAL</Link>
