@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import Masonry from 'react-masonry-css';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { OptimizedMediaItem } from './components/OptimizedMediaItem';
 import { getCloudflareImageUrl, isCloudflareConfigured } from './utils/cloudflareImages';
 import { getCloudflareImageId } from './utils/cloudflareImageMapping';
 
 const navLeft = 'haitham';
 const navRight = [
-  { label: 'About', href: '#' },
-  { label: 'Contact', href: 'https://www.instagram.com/hiswed/?hl=en', external: true },
+  { label: 'About', href: '/about' },
+  { label: 'Contact', href: '/contact' },
 ];
 
 // List of images and videos in the public/images folder
@@ -145,14 +145,13 @@ function GalleryPage() {
             About
           </Link>
           {navRight.filter(item => item.label !== 'About').map((item) => (
-            <a
+            <ContactLink
               key={item.label}
-              href={item.href}
+              to={item.href}
               className="font-medium text-lg opacity-80 hover:opacity-100 transition-opacity duration-200"
-              {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
             >
               {item.label}
-            </a>
+            </ContactLink>
           ))}
         </div>
       </nav>
@@ -396,14 +395,13 @@ function AboutPage() {
             About
           </Link>
           {navRight.filter(item => item.label !== 'About').map((item) => (
-            <a
+            <ContactLink
               key={item.label}
-              href={item.href}
+              to={item.href}
               className="font-medium text-lg opacity-80 hover:opacity-100 transition-opacity duration-200"
-              {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
             >
               {item.label}
-            </a>
+            </ContactLink>
           ))}
         </div>
       </nav>
@@ -415,14 +413,191 @@ function AboutPage() {
   );
 }
 
+// Add ContactPage component
+function ContactPage() {
+  // Animation state
+  const [show, setShow] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  // Get current time in US Eastern timezone
+  const now = new Date();
+  const easternTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York', hour12: false });
+
+  // Animate in on mount
+  useEffect(() => {
+    requestAnimationFrame(() => setShow(true));
+  }, []);
+
+  // Get previous path from location.state
+  let prevPath = '/';
+  if (location.state && location.state.prevPath && location.state.prevPath !== '/contact') {
+    prevPath = location.state.prevPath;
+  }
+
+  // Handle close with animation
+  const handleClose = () => {
+    setShow(false);
+    setTimeout(() => {
+      navigate(prevPath);
+    }, 700); // match transition duration
+  };
+
+  return (
+    <div
+      className={`min-h-screen w-full bg-white text-black font-mono fixed inset-0 z-50 transition-transform duration-700 ease-[cubic-bezier(0.22,0.61,0.36,1)] ${show ? 'translate-y-0' : 'translate-y-full'}`}
+      style={{ fontSize: '15px', letterSpacing: '0.01em' }}
+    >
+      {/* Top bar */}
+      <div className="w-full flex justify-between items-start px-8 pt-4 text-xs" style={{ fontFamily: 'monospace' }}>
+        <div>US EASTERN / {easternTime}</div>
+        <div className="text-center w-full absolute left-0 right-0 mx-auto" style={{ pointerEvents: 'none' }}>
+          <span className="inline-block" style={{ pointerEvents: 'auto' }}>INFO@HAITHAMISWED.COM</span>
+        </div>
+        <button className="ml-4 cursor-pointer bg-transparent border-none p-0 text-inherit" style={{ fontFamily: 'monospace' }} onClick={handleClose}>[CLOSE]</button>
+      </div>
+
+      {/* Main content */}
+      <div className="flex flex-col md:flex-row items-start w-full pt-8 md:pt-16 px-4 md:px-12 gap-0">
+        {/* Left: Large Info, flush left */}
+        <div className="flex flex-col justify-start items-start w-full md:w-auto" style={{ minWidth: '0' }}>
+          <span className="text-[14vw] md:text-[10vw] font-bold leading-none select-none mb-2 md:mb-0" style={{ fontFamily: 'monospace', lineHeight: 1 }}>Info</span>
+        </div>
+        {/* Right: Clients and Awards block, responsive */}
+        <div className="flex flex-col items-start justify-start w-full md:ml-[8vw] mt-2">
+          <div className="bg-white border-none shadow-none p-0 min-w-[0] max-w-full md:min-w-[320px] md:max-w-[420px]" style={{ fontFamily: 'monospace', marginTop: 0 }}>
+            <div className="mb-6 w-full">
+              <div className="mb-2 font-bold text-[2.5vw] md:text-[13px]">CLIENTS:</div>
+              <div className="text-[2vw] md:text-[13px]" style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
+                TOYOTA<br/>
+                LEXUS<br/>
+                LAND ROVER<br/>
+                FORD<br/>
+                HYUNDAI<br/>
+                NISSAN<br/>
+                KIA<br/>
+                MITSUBISHI<br/>
+                JCB<br/>
+                DEUTSCHE BANK<br/>
+                BOOTS PHARMACEUTICALS<br/>
+                JOHNSON AND JOHNSON PHARMA<br/>
+                PORSCHE DESIGN<br/>
+                TIMBERLAND<br/>
+                GILETTE<br/>
+                TWYFORD BATHROOMS<br/>
+                KOLOR<br/>
+                DULUX PAINTS<br/>
+                SAINSBURY<br/>
+                TESCO<br/>
+                ENGLISH HERITAGE<br/>
+                UK NATIONAL TRUST<br/>
+                AQUASCUTUM<br/>
+                RANGE ROVER<br/>
+                SPARK 44
+              </div>
+            </div>
+            <div className="w-full">
+              <div className="mb-2 font-bold text-[2.5vw] md:text-[13px]">AWARDS:</div>
+              <div className="text-[2vw] md:text-[13px]" style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
+                TOP 200 ADVERTISING PHOTOGRAPHERS WORLDWIDE<br/>
+                TOP 200 DIGITAL ARTISTS WORLDWIDE<br/>
+                ASSOCIATION OF PHOTOGRAPHERS AWARDS
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer for mobile/desktop */}
+      {/* On mobile, stack and left-align all footer items. On desktop, keep previous layout. */}
+      <div>
+        {/* Desktop & mobile: absolute copyright bottom left */}
+        <div className="absolute left-0 bottom-0 px-8 pb-4 text-xs flex flex-col gap-1 z-10 select-none" style={{ fontFamily: 'monospace' }}>
+          <span>ALL RIGHTS RESERVED</span>
+          <span>HAITHAM ISWED ©2025</span>
+        </div>
+        {/* Desktop: absolute footers */}
+        <div className="hidden md:block">
+          {/* Policy menu at the bottom right */}
+          <div className="absolute right-0 bottom-0 px-8 pb-4 text-xs flex flex-row items-center gap-3 z-10 select-none" style={{ fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.01em' }}>
+            <Link to="/privacy-policy" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit' }}>PRIVACY POLICY</Link>
+            <Link to="/cookie-policy" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit' }}>COOKIE POLICY</Link>
+          </div>
+          {/* Main menu at the bottom center, stacked */}
+          <div className="absolute left-1/2 -translate-x-1/2 bottom-0 pb-4 text-xs flex flex-col items-center gap-0 z-10 select-none" style={{ fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.01em' }}>
+            <Link to="/commercial" className="cursor-pointer mb-1" style={{ textDecoration: 'none', color: 'inherit' }}>COMMERCIAL</Link>
+            <Link to="/photography" className="cursor-pointer mb-1" style={{ textDecoration: 'none', color: 'inherit' }}>PHOTOGRAPHY</Link>
+            <Link to="/advertising" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit' }}>ADVERTISING</Link>
+          </div>
+        </div>
+        {/* Mobile: stacked, left-aligned footer (menu only, copyright stays pinned left) */}
+        <div className="block md:hidden w-full px-4 pb-4 pt-8 text-xs flex flex-col gap-1 z-10 select-none" style={{ fontFamily: 'monospace' }}>
+          <Link to="/privacy-policy" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit', textTransform: 'uppercase', letterSpacing: '0.01em' }}>PRIVACY POLICY</Link>
+          <Link to="/cookie-policy" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit', textTransform: 'uppercase', letterSpacing: '0.01em' }}>COOKIE POLICY</Link>
+          <Link to="/commercial" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit', textTransform: 'uppercase', letterSpacing: '0.01em' }}>COMMERCIAL</Link>
+          <Link to="/photography" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit', textTransform: 'uppercase', letterSpacing: '0.01em' }}>PHOTOGRAPHY</Link>
+          <Link to="/advertising" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit', textTransform: 'uppercase', letterSpacing: '0.01em' }}>ADVERTISING</Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Add placeholder pages for menu items
+function PrivacyPolicyPage() {
+  return <div className="min-h-screen flex items-center justify-center bg-white text-black font-mono"><h1 className="text-3xl">Privacy Policy</h1></div>;
+}
+function CookiePolicyPage() {
+  return <div className="min-h-screen flex items-center justify-center bg-white text-black font-mono"><h1 className="text-3xl">Cookie Policy</h1></div>;
+}
+function AdvertisingPage() {
+  return <div className="min-h-screen flex items-center justify-center bg-white text-black font-mono"><h1 className="text-3xl">Advertising</h1></div>;
+}
+function CommercialPage() {
+  return <div className="min-h-screen flex items-center justify-center bg-white text-black font-mono"><h1 className="text-3xl">Commercial</h1></div>;
+}
+function PhotographyPage() {
+  return <div className="min-h-screen flex items-center justify-center bg-white text-black font-mono"><h1 className="text-3xl">Photography</h1></div>;
+}
+
 // Restore AboutPage route
 export default function App() {
   return (
-    <Router>
-      <Routes>
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
+  );
+}
+
+function AppRoutes() {
+  const location = useLocation();
+  // Check if the current route is /contact
+  const isContact = location.pathname === '/contact';
+  // Store the previous location for modal overlay
+  const [prevLocation, setPrevLocation] = React.useState(location);
+  React.useEffect(() => {
+    if (!isContact) setPrevLocation(location);
+  }, [location, isContact]);
+
+  return (
+    <>
+      <Routes location={isContact ? prevLocation : location}>
         <Route path="/" element={<GalleryPage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+        <Route path="/cookie-policy" element={<CookiePolicyPage />} />
+        <Route path="/advertising" element={<AdvertisingPage />} />
+        <Route path="/commercial" element={<CommercialPage />} />
+        <Route path="/photography" element={<PhotographyPage />} />
       </Routes>
-    </Router>
+      {/* Modal overlay for ContactPage */}
+      {isContact && <ContactPage />}
+    </>
   );
+}
+
+// Utility: Link wrapper to pass prevPath in state for Contact link
+type ContactLinkProps = { to: string; [key: string]: any };
+export function ContactLink({ to, ...props }: ContactLinkProps) {
+  const location = useLocation();
+  return <Link to={to} state={{ prevPath: location.pathname }} {...props} />;
 }
