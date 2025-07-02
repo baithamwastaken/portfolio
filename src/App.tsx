@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from 'react';
 import Masonry from 'react-masonry-css';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { BrowserRouter, Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
@@ -191,26 +191,35 @@ function GalleryPage() {
   );
 }
 
-// Restore AnimatedHi component for the About page
-function AnimatedHi() {
-  const [hovered, setHovered] = React.useState(false);
-  const [expanded, setExpanded] = React.useState(false);
-  const [revealCount, setRevealCount] = React.useState(0);
-  const [encryptedText, setEncryptedText] = React.useState("");
-  const [scrollStage, setScrollStage] = React.useState(0); // 0 = initial, 1 = HI, 2 = decrypt
+// AnimatedHi now uses forwardRef to expose a triggerScrollStage method
+const AnimatedHi = forwardRef(function AnimatedHi({ onAnimationEnd }: { onAnimationEnd?: () => void }, ref) {
+  const [hovered, setHovered] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [revealCount, setRevealCount] = useState(0);
+  const [encryptedText, setEncryptedText] = useState("");
+  const [scrollStage, setScrollStage] = useState(0); // 0-5 for finer steps
+  const maxStage = 5;
   const leftFull = 'Haitham';
   const rightFull = 'Iswed';
   const total = leftFull.length + rightFull.length;
   const chars = "-_~`!@#$%^&*()+=[]{}|;:,.<>?";
+  const animationDone = expanded || scrollStage >= maxStage;
+
+  // Expose a method to trigger scroll stage from parent
+  useImperativeHandle(ref, () => ({
+    triggerScrollStage: () => {
+      setScrollStage((prev) => Math.min(prev + 1, maxStage));
+    }
+  }), [maxStage]);
 
   // Reveal left and right letters one by one
   const left = leftFull.slice(0, Math.min(revealCount, leftFull.length));
   const right = revealCount > leftFull.length ? rightFull.slice(0, revealCount - leftFull.length) : '';
 
   // Progress for HI expansion (0 to 1)
-  const hiProgress = hovered || scrollStage >= 1 ? 1 : 0;
+  const hiProgress = hovered || scrollStage >= 2 ? 1 : scrollStage / 2; // smoother
   // Progress for full name expansion (0 to 1)
-  const isExpanded = expanded || scrollStage === 2;
+  const isExpanded = expanded || scrollStage >= maxStage;
   const progress = isExpanded ? revealCount / total : 0;
   // Max translation for HI (closer together), and for full name
   const hiMaxTranslate = 60; // px, much closer for HI
@@ -218,16 +227,23 @@ function AnimatedHi() {
 
   // Encryption effect for the revealed text
   React.useEffect(() => {
-    if (isExpanded && revealCount < total) {
+    if (animationDone && revealCount < total) {
       const timer = setTimeout(() => {
         setRevealCount(revealCount + 1);
       }, 80);
       return () => clearTimeout(timer);
     }
-    if (!isExpanded && revealCount > 0) {
+    if (!animationDone && revealCount > 0) {
       setRevealCount(0);
     }
-  }, [isExpanded, revealCount, total]);
+  }, [animationDone, revealCount, total]);
+
+  // Notify parent when animation is done and all letters are revealed
+  React.useEffect(() => {
+    if (animationDone && revealCount === total && onAnimationEnd) {
+      onAnimationEnd();
+    }
+  }, [animationDone, revealCount, total, onAnimationEnd]);
 
   // Generate encrypted text for the remaining characters
   React.useEffect(() => {
@@ -244,7 +260,7 @@ function AnimatedHi() {
 
   // Handle click - toggle expanded state
   const handleClick = () => {
-    if ((hovered || scrollStage >= 1) && !isExpanded) {
+    if ((hovered || scrollStage >= 2) && !isExpanded) {
       // First click: expand
       setExpanded(true);
     } else if (isExpanded) {
@@ -261,11 +277,18 @@ function AnimatedHi() {
     }
   };
 
-  // Scroll event logic
+  // Smoother scroll event logic
   React.useEffect(() => {
+    let lastScrollY = window.scrollY;
+    let accumulated = 0;
+    const threshold = 40; // px per stage
     const onScroll = () => {
-      if (scrollStage < 2) {
-        setScrollStage((prev) => Math.min(prev + 1, 2));
+      const delta = Math.abs(window.scrollY - lastScrollY);
+      accumulated += delta;
+      lastScrollY = window.scrollY;
+      if (accumulated > threshold && scrollStage < maxStage) {
+        setScrollStage((prev) => Math.min(prev + 1, maxStage));
+        accumulated = 0;
       }
     };
     window.addEventListener('wheel', onScroll, { passive: true });
@@ -341,15 +364,75 @@ function AnimatedHi() {
       </span>
     </div>
   );
-}
+});
 
 // Restore AboutPage React component
 function AboutPage() {
-  const [bgPos, setBgPos] = React.useState('center');
-  const [showInfoSection, setShowInfoSection] = React.useState(false);
+  const [bgPos, setBgPos] = useState('center');
+  const [showInfoSection, setShowInfoSection] = useState(false);
+  const [locked, setLocked] = useState(true);
+  const infoSectionRef = useRef<HTMLDivElement>(null);
+  const hiRef = useRef<any>(null);
+  const location = useLocation();
+  const isAbout = location.pathname === '/about';
 
-  // Scroll detection for revealing info section
-  React.useEffect(() => {
+  // Lock/unlock scroll by setting body overflow
+  useEffect(() => {
+    if (locked) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [locked]);
+
+  // Listen for wheel/touch events while locked and forward to AnimatedHi
+  useEffect(() => {
+    if (!locked) return;
+    const handleScrollEvent = (e: Event) => {
+      e.preventDefault();
+      if (hiRef.current && typeof hiRef.current.triggerScrollStage === 'function') {
+        hiRef.current.triggerScrollStage();
+      }
+    };
+    window.addEventListener('wheel', handleScrollEvent, { passive: false });
+    window.addEventListener('touchmove', handleScrollEvent, { passive: false });
+    return () => {
+      window.removeEventListener('wheel', handleScrollEvent);
+      window.removeEventListener('touchmove', handleScrollEvent);
+    };
+  }, [locked]);
+
+  // When animation is done, unlock scroll and snap to info section
+  const handleAnimationEnd = useCallback(() => {
+    setTimeout(() => {
+      setLocked(false);
+      if (infoSectionRef.current) {
+        window.scrollTo({
+          top: infoSectionRef.current.offsetTop,
+          behavior: 'smooth',
+        });
+      }
+    }, 400); // short delay for natural feel
+  }, []);
+
+  // Snap to top function
+  const snapToTop = useCallback(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+    // Optionally, re-lock scroll and reset HI animation here if you want to re-run it
+    // setLocked(true); // Uncomment if you want to re-lock and re-run HI
+    // if (hiRef.current && typeof hiRef.current.reset === 'function') hiRef.current.reset();
+  }, []);
+
+  // Scroll detection for revealing info section (no snap here) and snap back up
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+    let snapCooldown = false;
     const handleScroll = () => {
       const scrollY = window.scrollY;
       const windowHeight = window.innerHeight;
@@ -359,11 +442,17 @@ function AboutPage() {
       } else {
         setShowInfoSection(false);
       }
+      // Snap back up if scrolling up and above 20% of first section
+      if (!locked && lastScrollY > scrollY && scrollY < windowHeight * 0.2 && !snapCooldown) {
+        snapCooldown = true;
+        snapToTop();
+        setTimeout(() => { snapCooldown = false; }, 1000); // debounce
+      }
+      lastScrollY = scrollY;
     };
-
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [locked, snapToTop]);
 
   // Parallax mouse move handler (even more subtle)
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -403,10 +492,10 @@ function AboutPage() {
   const backgroundUrl = getBackgroundImageUrl();
 
   return (
-    <div className="bg-black dark:bg-black text-white">
+    <div className="bg-black dark:bg-black text-white overflow-x-hidden w-full max-w-full">
       {/* First section: HI animation with background */}
       <div
-        className="min-h-screen flex flex-col items-center justify-center relative"
+        className="min-h-screen flex flex-col items-center justify-center relative w-full max-w-full overflow-x-hidden"
         style={{
           backgroundImage: backgroundUrl ? `url(${backgroundUrl})` : undefined,
           backgroundSize: '110%', // Less zoom
@@ -425,34 +514,39 @@ function AboutPage() {
           </Link>
           
           <div className="flex gap-8">
-            <Link
-              to="/about"
-              className="font-medium text-lg opacity-80 hover:opacity-100 transition-opacity duration-200"
-            >
-              About
-            </Link>
-            {navRight.filter(item => item.label !== 'About').map((item) => (
-              <ContactLink
-                key={item.label}
-                to={item.href}
-                className="font-medium text-lg opacity-80 hover:opacity-100 transition-opacity duration-200"
-              >
-                {item.label}
-              </ContactLink>
-            ))}
+            {navRight
+              .filter(item => (!isAbout ? item.label !== 'About' : item.label !== 'About' && item.label !== 'Contact'))
+              .map((item) => (
+                <ContactLink
+                  key={item.label}
+                  to={item.href}
+                  className="font-medium text-lg opacity-80 hover:opacity-100 transition-opacity duration-200"
+                >
+                  {item.label}
+                </ContactLink>
+              ))}
           </div>
         </nav>
         <div className="h-20" />
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <AnimatedHi />
+          <AnimatedHi ref={hiRef} onAnimationEnd={handleAnimationEnd} />
         </div>
       </div>
 
       {/* Second section: Contact page replica */}
       <div
-        className={`min-h-screen bg-white text-black font-mono relative overflow-hidden transition-opacity duration-1000 ${showInfoSection ? 'opacity-100' : 'opacity-0'}`}
-        style={{ fontSize: '15px', letterSpacing: '0.01em' }}
+        ref={infoSectionRef}
+        className={`min-h-screen bg-white text-black font-mono relative overflow-hidden transition-opacity duration-1000 w-full max-w-full ${showInfoSection ? 'opacity-100' : 'opacity-0'}`}
+        style={{ fontSize: '15px', letterSpacing: '0.01em', overflowX: 'hidden', maxWidth: '100vw' }}
       >
+        {/* Absolutely positioned close button */}
+        <button
+          className="fixed md:absolute top-4 right-4 z-50 cursor-pointer bg-transparent border-none p-0 text-inherit text-xs"
+          style={{ fontFamily: 'monospace', lineHeight: 1.2, letterSpacing: '0.01em' }}
+          onClick={snapToTop}
+        >
+          [CLOSE]
+        </button>
         {/* Top bar */}
         <div className="w-full flex justify-between items-start px-8 pt-4 text-xs" style={{ fontFamily: 'monospace' }}>
           <div>US EASTERN / {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York', hour12: false })}</div>
@@ -460,7 +554,6 @@ function AboutPage() {
           <div className="hidden md:block text-center w-full absolute left-0 right-0 mx-auto" style={{ pointerEvents: 'none' }}>
             <span className="inline-block" style={{ pointerEvents: 'auto' }}>INFO@HAITHAMISWED.COM</span>
           </div>
-          <div className="ml-4">[CLOSE]</div>
         </div>
 
         {/* Main content */}
