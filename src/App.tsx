@@ -473,8 +473,8 @@ function AboutPage() {
           <div className="flex flex-col items-start justify-start w-full md:ml-[8vw] mt-2 pl-4 md:pl-12">
             <div className="bg-white border-none shadow-none p-0 min-w-[0] max-w-full md:min-w-[320px] md:max-w-[420px]" style={{ fontFamily: 'monospace', marginTop: 0 }}>
               <div className="mb-6 w-full">
-                <div className="mb-2 font-bold text-[2.5vw] md:text-[13px]">INFO:</div>
-                <div className="text-[2vw] md:text-[13px]" style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
+                <div className="mb-2 font-bold text-xs">INFO:</div>
+                <div className="text-xs" style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
                   HAITHAM ISWED<br/>
                   407 *** ****<br/>
                   ORL, FL<br/>               
@@ -482,8 +482,8 @@ function AboutPage() {
                 </div>
               </div>
               <div className="w-full">
-                <div className="mb-2 font-bold text-[2.5vw] md:text-[13px]">SOCIALS:</div>
-                <div className="text-[2vw] md:text-[13px]" style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
+                <div className="mb-2 font-bold text-xs">SOCIALS:</div>
+                <div className="text-xs" style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
                   <a href="https://www.instagram.com/hiswed/" target="_blank" rel="noopener noreferrer" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit', textTransform: 'uppercase', letterSpacing: '0.01em' }}>INSTAGRAM</a><br/>
                   <a href="https://www.behance.net/haithamiswed" target="_blank" rel="noopener noreferrer" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit', textTransform: 'uppercase', letterSpacing: '0.01em' }}>BEHANCE</a><br/>
                   <a href="https://www.artstation.com/haithamiswed" target="_blank" rel="noopener noreferrer" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit', textTransform: 'uppercase', letterSpacing: '0.01em' }}>ARTSTATION</a><br/>
@@ -586,8 +586,8 @@ function ContactPage() {
         <div className="flex flex-col items-start justify-start w-full md:ml-[8vw] mt-2 pl-4 md:pl-12">
           <div className="bg-white border-none shadow-none p-0 min-w-[0] max-w-full md:min-w-[320px] md:max-w-[420px]" style={{ fontFamily: 'monospace', marginTop: 0 }}>
             <div className="mb-6 w-full">
-              <div className="mb-2 font-bold text-[2.5vw] md:text-[13px]">INFO:</div>
-              <div className="text-[2vw] md:text-[13px]" style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
+              <div className="mb-2 font-bold text-xs">INFO:</div>
+              <div className="text-xs" style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
                 HAITHAM ISWED<br/>
                 407 *** ****<br/>
                 ORL, FL<br/>               
@@ -595,8 +595,8 @@ function ContactPage() {
               </div>
             </div>
             <div className="w-full">
-              <div className="mb-2 font-bold text-[2.5vw] md:text-[13px]">SOCIALS:</div>
-              <div className="text-[2vw] md:text-[13px]" style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
+              <div className="mb-2 font-bold text-xs">SOCIALS:</div>
+              <div className="text-xs" style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
                 <a href="https://www.instagram.com/hiswed/" target="_blank" rel="noopener noreferrer" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit', textTransform: 'uppercase', letterSpacing: '0.01em' }}>INSTAGRAM</a><br/>
                 <a href="https://www.behance.net/haithamiswed" target="_blank" rel="noopener noreferrer" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit', textTransform: 'uppercase', letterSpacing: '0.01em' }}>BEHANCE</a><br/>
                 <a href="https://www.artstation.com/haithamiswed" target="_blank" rel="noopener noreferrer" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit', textTransform: 'uppercase', letterSpacing: '0.01em' }}>ARTSTATION</a><br/>
