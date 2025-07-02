@@ -475,16 +475,16 @@ function ContactPage() {
       </div>
 
       {/* Main content */}
-      <div className="flex flex-col md:flex-row items-start w-full pt-8 md:pt-16 px-4 md:px-12 gap-0">
+      <div className="flex flex-col md:flex-row items-start w-full pt-8 md:pt-16 pr-4 md:pr-12 gap-0">
         {/* Left: Large Info, flush left */}
-        <div className="flex flex-col justify-start items-start w-full md:w-auto" style={{ minWidth: '220px' }}>
-          <span className="text-[12vw] md:text-[8vw] font-bold leading-none select-none mb-2 md:mb-0" style={{ fontFamily: 'monospace', lineHeight: 1 }}>hello</span>
+        <div className="flex flex-col justify-start items-start w-full md:w-auto" style={{ minWidth: '0' }}>
+          <span className="text-[14vw] md:text-[9vw] font-bold leading-none select-none mb-2 md:mb-0" style={{ fontFamily: 'monospace', lineHeight: 1 }}>hello</span>
         </div>
         {/* Right: Clients and Awards block, responsive */}
-        <div className="flex flex-col items-start justify-start w-full md:ml-[8vw] mt-2">
+        <div className="flex flex-col items-start justify-start w-full md:ml-[8vw] mt-2 pl-4 md:pl-12">
           <div className="bg-white border-none shadow-none p-0 min-w-[0] max-w-full md:min-w-[320px] md:max-w-[420px]" style={{ fontFamily: 'monospace', marginTop: 0 }}>
             <div className="mb-6 w-full">
-              <div className="mb-2 font-bold text-[2.5vw] md:text-[13px]">CLIENTS:</div>
+              <div className="mb-2 font-bold text-[2.5vw] md:text-[13px]">INFO:</div>
               <div className="text-[2vw] md:text-[13px]" style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
                 TOYOTA<br/>
                 LEXUS<br/>
@@ -514,11 +514,12 @@ function ContactPage() {
               </div>
             </div>
             <div className="w-full">
-              <div className="mb-2 font-bold text-[2.5vw] md:text-[13px]">AWARDS:</div>
+              <div className="mb-2 font-bold text-[2.5vw] md:text-[13px]">SOCIALS:</div>
               <div className="text-[2vw] md:text-[13px]" style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
-                TOP 200 ADVERTISING PHOTOGRAPHERS WORLDWIDE<br/>
-                TOP 200 DIGITAL ARTISTS WORLDWIDE<br/>
-                ASSOCIATION OF PHOTOGRAPHERS AWARDS
+                INSTAGRAM<br/>
+                BEHANCE<br/>
+                ARTSTATION<br/>
+                YOUTUBE
               </div>
             </div>
           </div>
