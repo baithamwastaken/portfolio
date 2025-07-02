@@ -346,6 +346,24 @@ function AnimatedHi() {
 // Restore AboutPage React component
 function AboutPage() {
   const [bgPos, setBgPos] = React.useState('center');
+  const [showInfoSection, setShowInfoSection] = React.useState(false);
+
+  // Scroll detection for revealing info section
+  React.useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const windowHeight = window.innerHeight;
+      // Show info section when user scrolls past 50% of viewport
+      if (scrollY > windowHeight * 0.5) {
+        setShowInfoSection(true);
+      } else {
+        setShowInfoSection(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Parallax mouse move handler (even more subtle)
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -385,46 +403,130 @@ function AboutPage() {
   const backgroundUrl = getBackgroundImageUrl();
 
   return (
-    <div
-      className="min-h-screen bg-black dark:bg-black text-white flex flex-col items-center justify-center relative"
-      style={{
-        backgroundImage: backgroundUrl ? `url(${backgroundUrl})` : undefined,
-        backgroundSize: '110%', // Less zoom
-        backgroundPosition: bgPos,
-        backgroundRepeat: 'no-repeat',
-      }}
-      onMouseMove={handleMouseMove}
-    >
-      <nav className="flex justify-between items-center px-8 py-6 w-full fixed top-0 left-0 z-10 select-none">
-        <Link
-          to="/"
-          className="font-normal text-xl tracking-widest text-white opacity-90 hover:opacity-100 transition-opacity duration-200 font-sans"
-          style={{ textDecoration: 'none', mixBlendMode: 'difference' }}
-        >
-          {navLeft}
-        </Link>
-        
-        <div className="flex gap-8">
+    <div className="bg-black dark:bg-black text-white">
+      {/* First section: HI animation with background */}
+      <div
+        className="min-h-screen flex flex-col items-center justify-center relative"
+        style={{
+          backgroundImage: backgroundUrl ? `url(${backgroundUrl})` : undefined,
+          backgroundSize: '110%', // Less zoom
+          backgroundPosition: bgPos,
+          backgroundRepeat: 'no-repeat',
+        }}
+        onMouseMove={handleMouseMove}
+      >
+        <nav className="flex justify-between items-center px-8 py-6 w-full fixed top-0 left-0 z-10 select-none">
           <Link
-            to="/about"
-            className="font-medium text-lg opacity-80 hover:opacity-100 transition-opacity duration-200"
+            to="/"
+            className="font-normal text-xl tracking-widest text-white opacity-90 hover:opacity-100 transition-opacity duration-200 font-sans"
+            style={{ textDecoration: 'none', mixBlendMode: 'difference' }}
           >
-            About
+            {navLeft}
           </Link>
-          {navRight.filter(item => item.label !== 'About').map((item) => (
-            <ContactLink
-              key={item.label}
-              to={item.href}
+          
+          <div className="flex gap-8">
+            <Link
+              to="/about"
               className="font-medium text-lg opacity-80 hover:opacity-100 transition-opacity duration-200"
             >
-              {item.label}
-            </ContactLink>
-          ))}
+              About
+            </Link>
+            {navRight.filter(item => item.label !== 'About').map((item) => (
+              <ContactLink
+                key={item.label}
+                to={item.href}
+                className="font-medium text-lg opacity-80 hover:opacity-100 transition-opacity duration-200"
+              >
+                {item.label}
+              </ContactLink>
+            ))}
+          </div>
+        </nav>
+        <div className="h-20" />
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <AnimatedHi />
         </div>
-      </nav>
-      <div className="h-20" />
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <AnimatedHi />
+      </div>
+
+      {/* Second section: Contact page replica */}
+      <div
+        className={`min-h-screen bg-white text-black font-mono relative overflow-hidden transition-opacity duration-1000 ${showInfoSection ? 'opacity-100' : 'opacity-0'}`}
+        style={{ fontSize: '15px', letterSpacing: '0.01em' }}
+      >
+        {/* Top bar */}
+        <div className="w-full flex justify-between items-start px-8 pt-4 text-xs" style={{ fontFamily: 'monospace' }}>
+          <div>US EASTERN / {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York', hour12: false })}</div>
+          {/* Email top center: desktop only */}
+          <div className="hidden md:block text-center w-full absolute left-0 right-0 mx-auto" style={{ pointerEvents: 'none' }}>
+            <span className="inline-block" style={{ pointerEvents: 'auto' }}>INFO@HAITHAMISWED.COM</span>
+          </div>
+          <div className="ml-4">[CLOSE]</div>
+        </div>
+
+        {/* Main content */}
+        <div className="flex flex-col md:flex-row items-start w-full pt-8 md:pt-16 pr-4 md:pr-12 gap-0">
+          {/* Left: Large Info, flush left */}
+          <div className="flex flex-col justify-start items-start w-full md:w-auto" style={{ minWidth: '0' }}>
+            <span className="text-[14vw] md:text-[9vw] font-bold leading-none select-none mb-2 md:mb-0" style={{ fontFamily: 'monospace', lineHeight: 1 }}>hello</span>
+          </div>
+          {/* Right: Info and Socials block, responsive */}
+          <div className="flex flex-col items-start justify-start w-full md:ml-[8vw] mt-2 pl-4 md:pl-12">
+            <div className="bg-white border-none shadow-none p-0 min-w-[0] max-w-full md:min-w-[320px] md:max-w-[420px]" style={{ fontFamily: 'monospace', marginTop: 0 }}>
+              <div className="mb-6 w-full">
+                <div className="mb-2 font-bold text-[2.5vw] md:text-[13px]">INFO:</div>
+                <div className="text-[2vw] md:text-[13px]" style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
+                  HAITHAM ISWED<br/>
+                  407 *** ****<br/>
+                  ORL, FL<br/>               
+                  HELLO@HAITHAMISWED.COM
+                </div>
+              </div>
+              <div className="w-full">
+                <div className="mb-2 font-bold text-[2.5vw] md:text-[13px]">SOCIALS:</div>
+                <div className="text-[2vw] md:text-[13px]" style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
+                  <a href="https://www.instagram.com/hiswed/" target="_blank" rel="noopener noreferrer" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit', textTransform: 'uppercase', letterSpacing: '0.01em' }}>INSTAGRAM</a><br/>
+                  <a href="https://www.behance.net/haithamiswed" target="_blank" rel="noopener noreferrer" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit', textTransform: 'uppercase', letterSpacing: '0.01em' }}>BEHANCE</a><br/>
+                  <a href="https://www.artstation.com/haithamiswed" target="_blank" rel="noopener noreferrer" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit', textTransform: 'uppercase', letterSpacing: '0.01em' }}>ARTSTATION</a><br/>
+                  <a href="https://www.youtube.com/@" target="_blank" rel="noopener noreferrer" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit', textTransform: 'uppercase', letterSpacing: '0.01em' }}>YOUTUBE</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer for mobile/desktop */}
+        <div>
+          {/* Desktop & mobile: absolute copyright bottom left */}
+          <div className="absolute left-0 bottom-0 px-8 pb-4 text-xs flex flex-col gap-1 z-10 select-none" style={{ fontFamily: 'monospace' }}>
+            <span>ALL RIGHTS RESERVED</span>
+            <span>HAITHAM ISWED ©2025</span>
+          </div>
+          {/* Desktop: absolute footers */}
+          <div className="hidden md:block">
+            {/* Policy menu at the bottom right */}
+            <div className="absolute right-0 bottom-0 px-8 pb-4 text-xs flex flex-row items-center gap-3 z-10 select-none" style={{ fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.01em' }}>
+              <Link to="/privacy-policy" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit' }}>PRIVACY POLICY</Link>
+              <Link to="/cookie-policy" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit' }}>COOKIE POLICY</Link>
+            </div>
+            {/* Main menu at the bottom center, stacked */}
+            <div className="absolute left-1/2 -translate-x-1/2 bottom-0 pb-4 text-xs flex flex-col items-center gap-0 z-10 select-none" style={{ fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.01em' }}>
+              <Link to="/commercial" className="cursor-pointer mb-1" style={{ textDecoration: 'none', color: 'inherit' }}>COMMERCIAL</Link>
+              <Link to="/photography" className="cursor-pointer mb-1" style={{ textDecoration: 'none', color: 'inherit' }}>PHOTOGRAPHY</Link>
+              <Link to="/advertising" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit' }}>ADVERTISING</Link>
+            </div>
+          </div>
+          {/* Mobile: stacked, left-aligned footer (menu only, copyright stays pinned left) */}
+          <div className="block md:hidden w-full px-4 pb-4 pt-8 text-xs flex flex-col gap-1 z-10 select-none" style={{ fontFamily: 'monospace' }}>
+            <div className="w-full text-left mb-2">
+              <span className="inline-block" style={{ pointerEvents: 'auto' }}>INFO@HAITHAMISWED.COM</span>
+            </div>
+            <Link to="/privacy-policy" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit', textTransform: 'uppercase', letterSpacing: '0.01em' }}>PRIVACY POLICY</Link>
+            <Link to="/cookie-policy" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit', textTransform: 'uppercase', letterSpacing: '0.01em' }}>COOKIE POLICY</Link>
+            <Link to="/commercial" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit', textTransform: 'uppercase', letterSpacing: '0.01em' }}>COMMERCIAL</Link>
+            <Link to="/photography" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit', textTransform: 'uppercase', letterSpacing: '0.01em' }}>PHOTOGRAPHY</Link>
+            <Link to="/advertising" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit', textTransform: 'uppercase', letterSpacing: '0.01em' }}>ADVERTISING</Link>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -486,40 +588,19 @@ function ContactPage() {
             <div className="mb-6 w-full">
               <div className="mb-2 font-bold text-[2.5vw] md:text-[13px]">INFO:</div>
               <div className="text-[2vw] md:text-[13px]" style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
-                TOYOTA<br/>
-                LEXUS<br/>
-                LAND ROVER<br/>
-                FORD<br/>
-                HYUNDAI<br/>
-                NISSAN<br/>
-                KIA<br/>
-                MITSUBISHI<br/>
-                JCB<br/>
-                DEUTSCHE BANK<br/>
-                BOOTS PHARMACEUTICALS<br/>
-                JOHNSON AND JOHNSON PHARMA<br/>
-                PORSCHE DESIGN<br/>
-                TIMBERLAND<br/>
-                GILETTE<br/>
-                TWYFORD BATHROOMS<br/>
-                KOLOR<br/>
-                DULUX PAINTS<br/>
-                SAINSBURY<br/>
-                TESCO<br/>
-                ENGLISH HERITAGE<br/>
-                UK NATIONAL TRUST<br/>
-                AQUASCUTUM<br/>
-                RANGE ROVER<br/>
-                SPARK 44
+                HAITHAM ISWED<br/>
+                407 *** ****<br/>
+                ORL, FL<br/>               
+                HELLO@HAITHAMISWED.COM
               </div>
             </div>
             <div className="w-full">
               <div className="mb-2 font-bold text-[2.5vw] md:text-[13px]">SOCIALS:</div>
               <div className="text-[2vw] md:text-[13px]" style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
-                INSTAGRAM<br/>
-                BEHANCE<br/>
-                ARTSTATION<br/>
-                YOUTUBE
+                <a href="https://www.instagram.com/hiswed/" target="_blank" rel="noopener noreferrer" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit', textTransform: 'uppercase', letterSpacing: '0.01em' }}>INSTAGRAM</a><br/>
+                <a href="https://www.behance.net/haithamiswed" target="_blank" rel="noopener noreferrer" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit', textTransform: 'uppercase', letterSpacing: '0.01em' }}>BEHANCE</a><br/>
+                <a href="https://www.artstation.com/haithamiswed" target="_blank" rel="noopener noreferrer" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit', textTransform: 'uppercase', letterSpacing: '0.01em' }}>ARTSTATION</a><br/>
+                <a href="https://www.youtube.com/@" target="_blank" rel="noopener noreferrer" className="cursor-pointer" style={{ textDecoration: 'none', color: 'inherit', textTransform: 'uppercase', letterSpacing: '0.01em' }}>YOUTUBE</a>
               </div>
             </div>
           </div>
